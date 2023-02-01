@@ -11,7 +11,7 @@ https://docs.rs/multisig-lite)
 [multisig]: https://en.wikipedia.org/wiki/Cryptocurrency_wallet#Multisignature_wallet
 [solana blockchain]: https://solana.com
 [rust doc]: https://docs.rs/multisig-lite
-[typescript test]: ../../../tests/multisig-lite.ts
+[typescript test]: ../../tests/multisig-lite.ts
 
 A native [SOL] [multisig] on-chain program for [Solana Blockchain].
 
