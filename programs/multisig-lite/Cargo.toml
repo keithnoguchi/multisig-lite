@@ -1,0 +1,28 @@
+[package]
+name = "multisig-lite"
+# When publish a new version:
+# - Update CHANGELOG.md
+version = "0.0.1"
+edition = "2021"
+authors = ["Keith Noguchi <keith@noguchi.us>"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/keithnoguchi/multisig-lite"
+repository = "https://github.com/keithnoguchi/multisig-lite"
+documentation = "https://docs.rs/multisig-lite"
+categories = ["multisig", "wallet", "solana", "anchor", "crypto"]
+description = "A native SOL multisig on-chain program"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "multisig_lite"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.26.0"
