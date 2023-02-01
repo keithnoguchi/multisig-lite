@@ -2,7 +2,7 @@
 name = "multisig-lite"
 # When publish a new version:
 # - Update CHANGELOG.md
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 authors = ["Keith Noguchi <keith@noguchi.us>"]
 license = "MIT OR Apache-2.0"

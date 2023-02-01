@@ -4,11 +4,9 @@
 
 # Version 0.0.2
 
-[multisig-lite]: programs/multisig-lite
 [rust doc]: https://docs.rs/multisig-lite
-[typescript test]: tests/multisig-lite.ts
 
-- Initial release of the [multisig-lite] on chain program
+- Initial release of the `multisig-lite` on chain program
   with the following five instructions:
 
   1. `create`
@@ -17,7 +15,7 @@
   4. `approve`
   5. `close`
 
-  Please refer to the [Rust doc] and [TypeScript test] for more detail.
+  Please refer to the [Rust doc] for more detail.
 
 # Version 0.0.1
 
