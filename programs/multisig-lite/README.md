@@ -7,7 +7,23 @@ https://crates.io/crates/multisig-lite)
 [![Documentation](https://docs.rs/multisig-lite/badge.svg)](
 https://docs.rs/multisig-lite)
 
-A native SOL multisig on-chain program.
+[sol]: https://en.wikipedia.org/wiki/Solana_(blockchain_platform)
+[multisig]: https://en.wikipedia.org/wiki/Cryptocurrency_wallet#Multisignature_wallet
+[solana blockchain]: https://solana.com
+[rust doc]: https://docs.rs/multisig-lite
+[typescript test]: ../../../tests/multisig-lite.ts
+
+A native [SOL] [multisig] on-chain program for [Solana Blockchain].
+
+Currently, there are five instructions to provide the queued multisig transfer operation:
+
+1. [`create`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.create.html)
+2. [`fund`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.fund.html)
+3. [`create_transfer`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.create_transfer.html)
+4. [`approve`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.approve.html)
+5. [`close`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.close.html)
+
+Please refer to the [Rust doc] and [TypeScript test] for more detail.
 
 ## License
 

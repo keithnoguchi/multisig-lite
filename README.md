@@ -7,7 +7,15 @@ https://crates.io/crates/multisig-lite)
 [![Documentation](https://docs.rs/multisig-lite/badge.svg)](
 https://docs.rs/multisig-lite)
 
-A native SOL multisig wallet dApp and an on-chain program.
+[`sol`]: https://www.tradingview.com/chart/?symbol=SOL
+[multi signature wallet]: https://en.wikipedia.org/wiki/Cryptocurrency_wallet#Multisignature_wallet
+[on-chain program]: programs/multisig-lite/README.md
+[solana blockchain]: https://solana.com
+
+A native [`SOL`] [multi signature wallet] dApp and [on-chain program]
+for [Solana Blockchain].
+
+1. [On-chain program](programs/multisig-lite/README.md)
 
 ## License
 
