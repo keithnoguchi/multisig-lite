@@ -425,7 +425,7 @@ pub mod multisig_lite {
     /// Funds lamports to the multisig account.
     ///
     /// The funding is only allowed by the multisig account funder.
-    pub fn fund(ctx: Context<Fund>, lamports: u64, _staet_bump: u8, fund_bump: u8) -> Result<()> {
+    pub fn fund(ctx: Context<Fund>, lamports: u64, _state_bump: u8, fund_bump: u8) -> Result<()> {
         let funder = &ctx.accounts.funder;
         let state = &mut ctx.accounts.state;
         let fund = &mut ctx.accounts.fund;

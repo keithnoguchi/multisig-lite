@@ -1,3 +1,7 @@
+# Version 0.0.4
+
+- Fix typo in `multisig_lite::fund` instruction.
+
 # Version 0.0.3
 
 - Fix the test link, changelog, as well as the license files.
