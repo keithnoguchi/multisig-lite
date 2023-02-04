@@ -1,5 +1,7 @@
 # multisig-lite
 
+[![CI](https://github.com/keithnoguchi/multisig-lite/actions/workflows/ci.yml/badge.svg)](
+https://github.com/keithnoguchi/multisig-lite/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)](
 https://github.com/keithnoguchi/multisig-lite)
 [![Cargo](https://img.shields.io/crates/v/multisig-lite.svg)](

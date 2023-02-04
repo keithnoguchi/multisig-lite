@@ -1,3 +1,7 @@
+# Version 0.0.5
+
+- Add github action with fmt, clippy, check, and build.
+
 # Version 0.0.4
 
 - Fix typo in `multisig_lite::fund` instruction.
