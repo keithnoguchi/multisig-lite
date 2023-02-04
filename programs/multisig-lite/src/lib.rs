@@ -193,10 +193,10 @@ impl State {
 
     /// Withdraw fund.
     #[allow(clippy::result_large_err)]
-    fn transfer_fund<'a, 'b, 'c>(
-        _state: &Account<'a, Self>,
-        from: &AccountInfo<'b>,
-        to: &AccountInfo<'c>,
+    fn transfer_fund(
+        _state: &Account<'_, Self>,
+        from: &AccountInfo<'_>,
+        to: &AccountInfo<'_>,
         lamports: u64,
         _bump: u8,
     ) -> Result<()> {
