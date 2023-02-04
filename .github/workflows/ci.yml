@@ -69,7 +69,7 @@ jobs:
         shell: bash
       - name: Run cargo build-bpf
         run: |
-          cargo build-bpf --all-features --all-targets --bins --examples
+          cargo build-bpf --workspace
 
   anchor-build:
     runs-on: ubuntu-latest
