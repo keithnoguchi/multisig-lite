@@ -113,12 +113,12 @@ impl State {
 
     /// Returns the valid n, number of signers.
     fn valid_n(n: u8) -> u8 {
-        n.min(Self::MAX_SIGNERS).max(Self::MIN_SIGNERS)
+        n.clamp(Self::MIN_SIGNERS, Self::MAX_SIGNERS)
     }
 
     /// Returns the valid q, queue length.
     fn valid_q(q: u8) -> u8 {
-        q.min(Self::MAX_QUEUE).max(Self::MIN_QUEUE)
+        q.clamp(Self::MIN_QUEUE, Self::MAX_QUEUE)
     }
 
     /// Checks if the transfer queue is empty.
@@ -141,12 +141,14 @@ impl State {
     }
 
     /// Validates the multisig queue.
+    #[allow(clippy::result_large_err)]
     fn validate_queue(&self) -> Result<()> {
         require!(!self.is_full(), Error::AccountFull);
         Ok(())
     }
 
     /// Validates the multisig fund account.
+    #[allow(clippy::result_large_err)]
     fn validate_fund<'info>(
         state: &Account<'info, Self>,
         fund: &UncheckedAccount<'info>,
@@ -170,6 +172,7 @@ impl State {
     }
 
     /// Creates a fund account.
+    #[allow(clippy::result_large_err)]
     fn create_fund_account<'info>(
         state: &Account<'info, Self>,
         fund: &UncheckedAccount<'info>,
@@ -189,6 +192,7 @@ impl State {
     }
 
     /// Withdraw fund.
+    #[allow(clippy::result_large_err)]
     fn transfer_fund<'a, 'b, 'c>(
         _state: &Account<'a, Self>,
         from: &AccountInfo<'b>,
@@ -381,6 +385,7 @@ pub mod multisig_lite {
     ///
     /// It's restricted one multisig account to each funder Pubkey,
     /// as it's used for the multisig PDA address generation.
+    #[allow(clippy::result_large_err)]
     pub fn create(
         ctx: Context<Create>,
         m: u8,
@@ -394,7 +399,7 @@ pub mod multisig_lite {
         let fund = &mut ctx.accounts.fund;
 
         // Validate the multisig fund account.
-        State::validate_fund(&state, &fund, fund_bump)?;
+        State::validate_fund(state, fund, fund_bump)?;
 
         // Checks the uniqueness of signer's address.
         let signers: HashSet<_> = signers.into_iter().collect();
@@ -409,7 +414,7 @@ pub mod multisig_lite {
         require_gte!(signers.len(), threshold, Error::ThresholdTooHigh);
 
         // Creates a fund account.
-        State::create_fund_account(&state, &fund, &funder, fund_bump)?;
+        State::create_fund_account(state, fund, funder, fund_bump)?;
 
         // Initializes the multisig state account.
         state.m = m;
@@ -425,13 +430,14 @@ pub mod multisig_lite {
     /// Funds lamports to the multisig account.
     ///
     /// The funding is only allowed by the multisig account funder.
+    #[allow(clippy::result_large_err)]
     pub fn fund(ctx: Context<Fund>, lamports: u64, _state_bump: u8, fund_bump: u8) -> Result<()> {
         let funder = &ctx.accounts.funder;
         let state = &mut ctx.accounts.state;
         let fund = &mut ctx.accounts.fund;
 
         // Validate the multisig fund account.
-        State::validate_fund(&state, &fund, fund_bump)?;
+        State::validate_fund(state, fund, fund_bump)?;
 
         // CPI to transfer fund to the multisig fund account.
         let ix = system_instruction::transfer(&funder.key(), &fund.key(), lamports);
@@ -448,6 +454,7 @@ pub mod multisig_lite {
     ///
     /// Transfer account creation fee will be given back to the
     /// creator of the transfer from the multisig fund.
+    #[allow(clippy::result_large_err)]
     pub fn create_transfer(
         ctx: Context<CreateTransfer>,
         recipient: Pubkey,
@@ -463,7 +470,7 @@ pub mod multisig_lite {
         require!(!state.is_locked(), Error::AccountLocked);
 
         // Validate the multisig fund account.
-        State::validate_fund(&state, &fund, fund_bump)?;
+        State::validate_fund(state, fund, fund_bump)?;
 
         // Checks the creator.
         let creator_key = creator.key();
@@ -480,7 +487,7 @@ pub mod multisig_lite {
         let from = fund.to_account_info();
         let to = creator.to_account_info();
         let rent = transfer.to_account_info().lamports();
-        State::transfer_fund(&state, &from, &to, rent, fund_bump)?;
+        State::transfer_fund(state, &from, &to, rent, fund_bump)?;
 
         // Initializes the transfer account, and
         // queue it under multisig account for the
@@ -496,6 +503,7 @@ pub mod multisig_lite {
 
     /// Approves the transactions and executes the transfer
     /// in case m approvals are met.
+    #[allow(clippy::result_large_err)]
     pub fn approve(ctx: Context<Approve>, fund_bump: u8) -> Result<()> {
         let signer = &ctx.accounts.signer;
         let state = &mut ctx.accounts.state;
@@ -507,7 +515,7 @@ pub mod multisig_lite {
             .collect();
 
         // Validate the multisig fund account.
-        State::validate_fund(&state, &fund, fund_bump)?;
+        State::validate_fund(state, fund, fund_bump)?;
 
         // Nothing to approve.
         require!(!state.is_empty(), Error::AccountEmpty);
@@ -565,16 +573,16 @@ pub mod multisig_lite {
         let fund = fund.to_account_info();
         for (transfer, to, lamports) in executable {
             // Fund to the recipient and closes the transfer account.
-            State::transfer_fund(&state, &fund, &to, lamports, fund_bump)?;
+            State::transfer_fund(state, &fund, to, lamports, fund_bump)?;
             let lamports = transfer.lamports();
-            State::transfer_fund(&state, &transfer, &fund, lamports, fund_bump)?;
+            State::transfer_fund(state, transfer, &fund, lamports, fund_bump)?;
         }
 
         // Update the queue.
         state.queue = remaining;
 
         // Reset the signed status once the queue is empty.
-        if State::is_empty(&state) {
+        if state.is_empty() {
             state.signed.iter_mut().for_each(|signed| *signed = false);
         }
 
@@ -585,6 +593,7 @@ pub mod multisig_lite {
     ///
     /// It cleans up all the remaining accounts and return back to the
     /// funder.
+    #[allow(clippy::result_large_err)]
     pub fn close(ctx: Context<Close>, _state_bump: u8, fund_bump: u8) -> Result<()> {
         let funder = &mut ctx.accounts.funder;
         let state = &mut ctx.accounts.state;
@@ -596,7 +605,7 @@ pub mod multisig_lite {
             .collect();
 
         // Validate the multisig fund account.
-        State::validate_fund(&state, &fund, fund_bump)?;
+        State::validate_fund(state, fund, fund_bump)?;
 
         // Closes the transfer accounts by transfering the
         // rent fee back to the fund account.
@@ -607,7 +616,7 @@ pub mod multisig_lite {
                 None => continue,
             };
             let lamports = from.lamports();
-            State::transfer_fund(&state, &from, &to, lamports, fund_bump)?;
+            State::transfer_fund(state, from, &to, lamports, fund_bump)?;
         }
 
         // Closes the multisig fund account by transfering all the lamports
@@ -615,7 +624,7 @@ pub mod multisig_lite {
         let from = fund.to_account_info();
         let to = funder.to_account_info();
         let lamports = fund.lamports();
-        State::transfer_fund(&state, &from, &to, lamports, fund_bump)?;
+        State::transfer_fund(state, &from, &to, lamports, fund_bump)?;
 
         Ok(())
     }
