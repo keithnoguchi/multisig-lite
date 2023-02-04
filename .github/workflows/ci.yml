@@ -63,6 +63,10 @@ jobs:
       - name: Install Solana and BPF toolchain
         run: |
           sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
       - name: Run cargo build-bpf
         run: |
           cargo build-bpf --all-features --all-targets --bins --examples
@@ -77,6 +81,10 @@ jobs:
       - name: Install Solana and BPF toolchain
         run: |
           sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
       - name: Install Anchor-cli
         run: cargo install anchor-cli
       - name: Run anchor build
