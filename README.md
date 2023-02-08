@@ -20,7 +20,7 @@ for [Solana Blockchain].
 ## On-chain Programs
 
 - [multisig-lite](programs/multisig-lite/README.md)
-  - [Devnet]: https://explorer.solana.com/address/Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t?cluster=devnet
+  - [Devnet](https://explorer.solana.com/address/Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t?cluster=devnet)
 
 ## License
 
