@@ -9,7 +9,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::program::{invoke, invoke_signed};
 use anchor_lang::solana_program::system_instruction;
 
-declare_id!("2bhFGQZawKVEBpfhFAwAXDnd7mUCDJj6E5eYSJWfgzQ1");
+declare_id!("Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t");
 
 /// A multisig program specific error code.
 #[error_code]
