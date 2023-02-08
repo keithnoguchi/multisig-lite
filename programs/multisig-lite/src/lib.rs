@@ -291,7 +291,7 @@ pub struct Fund<'info> {
     #[account(mut, seeds = [b"fund", state.key().as_ref()], bump = fund_bump)]
     pub fund: UncheckedAccount<'info>,
 
-    /// The system program to make the transfer of the funds.
+    /// The system program to make the transfer of the fund.
     pub system_program: Program<'info, System>,
 }
 
@@ -317,7 +317,7 @@ pub struct CreateTransfer<'info> {
 
     /// A transfer account to keep the queued transfer info.
     #[account(init, payer = creator, space = Transfer::SPACE)]
-    pub transfer: Account<'info, Transfer>,
+    pub transfer: Box<Account<'info, Transfer>>,
 
     /// The system program to create a transfer account.
     pub system_program: Program<'info, System>,
@@ -349,9 +349,6 @@ pub struct Approve<'info> {
     /// CHECK: Checked by the [`multisig_lite::approve`] instruction handler.
     #[account(mut, seeds = [b"fund", state.key().as_ref()], bump = fund_bump)]
     pub fund: UncheckedAccount<'info>,
-
-    /// The system program to create a transfer account.
-    pub system_program: Program<'info, System>,
 }
 
 /// Accounts for the [`multisig_lite::close`] instruction handler.
@@ -371,9 +368,6 @@ pub struct Close<'info> {
     /// CHECK: Checked by the [`multisig_lite::close`] instruction handler.
     #[account(mut, seeds = [b"fund", state.key().as_ref()], bump = fund_bump)]
     pub fund: UncheckedAccount<'info>,
-
-    /// The system program to transfer back the fund.
-    pub system_program: Program<'info, System>,
 }
 
 /// Module representing the program instruction handlers.
