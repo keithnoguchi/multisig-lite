@@ -1,14 +1,18 @@
 [features]
 seeds = false
 skip-lint = false
+
+[programs.devnet]
+multisig_lite = "Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t"
+
 [programs.localnet]
-multisig_lite = "2bhFGQZawKVEBpfhFAwAXDnd7mUCDJj6E5eYSJWfgzQ1"
+multisig_lite = "Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

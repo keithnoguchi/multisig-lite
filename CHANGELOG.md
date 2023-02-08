@@ -1,3 +1,9 @@
+# Version 0.0.6
+
+- Deployed to the [devnet].
+
+[devnet]: https://explorer.solana.com/address/Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t?cluster=devnet
+
 # Version 0.0.5
 
 - Add github action with fmt, clippy, check, and build.

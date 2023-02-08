@@ -17,7 +17,10 @@ https://docs.rs/multisig-lite)
 A native [`SOL`] [multi signature wallet] dApp and [on-chain program]
 for [Solana Blockchain].
 
-1. [On-chain program](programs/multisig-lite/README.md)
+## On-chain Program
+
+- [multisig-lite](programs/multisig-lite/README.md)
+  - [devnet](https://explorer.solana.com/address/Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t?cluster=devnet)
 
 ## License
 
