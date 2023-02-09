@@ -7,11 +7,12 @@ use solana_program_test::ProgramTest;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::Signer;
 use solana_sdk::system_program;
+use solana_sdk::transaction::Transaction;
 
 #[tokio::test]
 async fn create() -> Result<(), Box<dyn Error>> {
     // Starts the on-chain program first.
-    let (mut _banks_client, funder, _recent_blockhash) =
+    let (mut banks_client, funder, recent_blockhash) =
         ProgramTest::new("multisig_lite", multisig_lite::id(), None)
             .start()
             .await;
@@ -32,7 +33,7 @@ async fn create() -> Result<(), Box<dyn Error>> {
         Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &multisig_lite::id());
 
     // Creates a transaction.
-    let _tx = program
+    let ixs = program
         .request()
         .accounts(multisig_lite::accounts::Create {
             funder: funder.pubkey(),
@@ -40,7 +41,14 @@ async fn create() -> Result<(), Box<dyn Error>> {
             fund: fund_pda,
             system_program: system_program::id(),
         })
-        .transaction()?;
+        .instructions()?;
+
+    println!("{ixs:?}");
+
+    let mut tx = Transaction::new_with_payer(&ixs, Some(&funder.pubkey()));
+    tx.sign(&[funder.as_ref()], recent_blockhash);
+
+    banks_client.process_transaction(tx).await?;
 
     Ok(())
 }
