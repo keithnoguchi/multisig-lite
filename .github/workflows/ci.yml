@@ -62,7 +62,7 @@ jobs:
         run: rustup update stable
       - name: Install Solana and SBF toolchain
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
       - name: Add solana command to the PATH environment
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
@@ -79,7 +79,7 @@ jobs:
         run: rustup update stable
       - name: Install Solana and SBF toolchain
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
       - name: Add solana command to the PATH environment
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
@@ -96,7 +96,7 @@ jobs:
         run: rustup update stable
       - name: Install Solana and BPF toolchain
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
       - name: Add solana command to the PATH environment
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
