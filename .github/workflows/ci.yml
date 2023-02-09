@@ -53,23 +53,41 @@ jobs:
         run: |
           cargo check --all-features --all-targets --bins --examples
 
-  build-bpf:
+  build-sbf:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Install Rust
         run: rustup update stable
-      - name: Install Solana and BPF toolchain
+      - name: Install Solana and SBF toolchain
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+          sh -c "$(curl -sSfL https://release.solana.com/latest/install)"
       - name: Add solana command to the PATH environment
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
-      - name: Run cargo build-bpf
+      - name: Run cargo build-sbf
         run: |
-          cargo build-bpf --workspace
+          cargo build-sbf --workspace
+
+  test-sbf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install Solana and SBF toolchain
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/latest/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Run cargo test-sbf
+        run: |
+          cargo test-sbf --workspace
 
   anchor-build:
     runs-on: ubuntu-latest
@@ -80,7 +98,7 @@ jobs:
         run: rustup update stable
       - name: Install Solana and BPF toolchain
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+          sh -c "$(curl -sSfL https://release.solana.com/latest/install)"
       - name: Add solana command to the PATH environment
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
