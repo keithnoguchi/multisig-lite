@@ -1,22 +1,13 @@
 //! `multisig_list::State` unit tests.
 
-use anchor_lang::solana_program::pubkey::Pubkey;
+use std::error::Error;
 
 use multisig_lite::State;
 
 #[test]
-fn state_space() {
-    let signers = vec![Pubkey::default(), Pubkey::default()];
-    let q = 100;
-    assert_eq!(State::space(&signers, q), 3328);
-}
-
-#[test]
-fn state_valid_n() {
-    (1_u8..255).for_each(|n| assert_eq!(State::valid_n(n), n));
-}
-
-#[test]
-fn state_valid_q() {
-    (1_u8..255).for_each(|n| assert_eq!(State::valid_q(n), n));
+fn state_validate_queue() -> Result<(), Box<dyn Error>> {
+    let mut state = State::default();
+    state.q = 1;
+    state.validate_queue()?;
+    Ok(())
 }

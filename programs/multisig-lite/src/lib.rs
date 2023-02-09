@@ -69,6 +69,7 @@ pub enum Error {
 
 /// A multisig [`State`] PDA account data.
 #[account]
+#[derive(Debug, Default)]
 pub struct State {
     /// A threshold.
     pub m: u8,
@@ -85,7 +86,7 @@ pub struct State {
     /// A balance of the fund in lamports.
     pub balance: u64,
 
-    /// A maximum pending transactions.
+    /// A limit of the pending transactions.
     pub q: u8,
 
     /// An array of the pending transactions.
@@ -105,29 +106,29 @@ impl State {
     /// A maximum transaction queue.
     const MAX_QUEUE: u8 = u8::MAX;
 
-    pub fn space(signers: &[Pubkey], q: u8) -> usize {
+    fn space(signers: &[Pubkey], q: u8) -> usize {
         let n = Self::valid_n(signers.len() as u8) as usize;
         let q = Self::valid_q(q) as usize;
         8 + 1 + 4 + 32 * n + 4 + n + 32 + 8 + 1 + 4 + 32 * q
     }
 
     /// Returns the valid n, number of signers.
-    pub fn valid_n(n: u8) -> u8 {
+    fn valid_n(n: u8) -> u8 {
         n.clamp(Self::MIN_SIGNERS, Self::MAX_SIGNERS)
     }
 
     /// Returns the valid q, queue length.
-    pub fn valid_q(q: u8) -> u8 {
+    fn valid_q(q: u8) -> u8 {
         q.clamp(Self::MIN_QUEUE, Self::MAX_QUEUE)
     }
 
     /// Checks if the transfer queue is empty.
-    fn is_empty(&self) -> bool {
+    fn is_queue_empty(&self) -> bool {
         self.queue.is_empty()
     }
 
     /// Check if the multisig queue is full.
-    fn is_full(&self) -> bool {
+    fn is_queue_full(&self) -> bool {
         self.queue.len() == self.q as usize
     }
 
@@ -142,8 +143,8 @@ impl State {
 
     /// Validates the multisig queue.
     #[allow(clippy::result_large_err)]
-    fn validate_queue(&self) -> Result<()> {
-        require!(!self.is_full(), Error::AccountFull);
+    pub fn validate_queue(&self) -> Result<()> {
+        require!(!self.is_queue_full(), Error::AccountFull);
         Ok(())
     }
 
@@ -512,7 +513,7 @@ pub mod multisig_lite {
         State::validate_fund(state, fund, fund_bump)?;
 
         // Nothing to approve.
-        require!(!state.is_empty(), Error::AccountEmpty);
+        require!(!state.is_queue_empty(), Error::AccountEmpty);
 
         // Checks the signer.
         let signer_key = signer.key();
@@ -576,7 +577,7 @@ pub mod multisig_lite {
         state.queue = remaining;
 
         // Reset the signed status once the queue is empty.
-        if state.is_empty() {
+        if state.is_queue_empty() {
             state.signed.iter_mut().for_each(|signed| *signed = false);
         }
 
