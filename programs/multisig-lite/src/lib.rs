@@ -105,19 +105,19 @@ impl State {
     /// A maximum transaction queue.
     const MAX_QUEUE: u8 = u8::MAX;
 
-    fn space(signers: &[Pubkey], q: u8) -> usize {
+    pub fn space(signers: &[Pubkey], q: u8) -> usize {
         let n = Self::valid_n(signers.len() as u8) as usize;
         let q = Self::valid_q(q) as usize;
         8 + 1 + 4 + 32 * n + 4 + n + 32 + 8 + 1 + 4 + 32 * q
     }
 
     /// Returns the valid n, number of signers.
-    fn valid_n(n: u8) -> u8 {
+    pub fn valid_n(n: u8) -> u8 {
         n.clamp(Self::MIN_SIGNERS, Self::MAX_SIGNERS)
     }
 
     /// Returns the valid q, queue length.
-    fn valid_q(q: u8) -> u8 {
+    pub fn valid_q(q: u8) -> u8 {
         q.clamp(Self::MIN_QUEUE, Self::MAX_QUEUE)
     }
 

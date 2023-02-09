@@ -1,3 +1,7 @@
+# Version 0.0.7
+
+- Program test with `cargo test-sbf`
+
 # Version 0.0.6
 
 - Deployed to the [devnet].
