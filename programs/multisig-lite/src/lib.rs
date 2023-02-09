@@ -143,7 +143,7 @@ impl State {
 
     /// Validates the multisig queue.
     #[allow(clippy::result_large_err)]
-    pub fn validate_queue(&self) -> Result<()> {
+    fn validate_queue(&self) -> Result<()> {
         require!(!self.is_queue_full(), Error::AccountFull);
         Ok(())
     }
@@ -231,13 +231,13 @@ impl State {
 pub struct Transfer {
     /// An creator of the transfer, one of the multisig
     /// signers.
-    creator: Pubkey,
+    pub creator: Pubkey,
 
     /// A recipient of the transfer.
-    recipient: Pubkey,
+    pub recipient: Pubkey,
 
     /// A lamports to transfer.
-    lamports: u64,
+    pub lamports: u64,
 }
 
 impl Transfer {
