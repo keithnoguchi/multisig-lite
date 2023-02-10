@@ -9,7 +9,6 @@ use std::error::Error;
 use std::rc::Rc;
 
 use clap::{Parser, ValueEnum};
-use solana_sdk::account::Account;
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::read_keypair_file;
@@ -56,8 +55,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
     let (fund_pda, _fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
 
-    // Query the `multisig_lite::State` account.
-    let fund: Account = program.rpc().get_account(&fund_pda)?;
+    // Query the Fund account.
+    let fund = program.rpc().get_account(&fund_pda)?;
 
     println!("{fund:?}");
 
