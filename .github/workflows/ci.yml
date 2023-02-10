@@ -167,4 +167,4 @@ jobs:
         run: |
           solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
       - name: Run anchor test
-        run: anchor test --skip-deploy --skip-local-validator
+        run: anchor test --skip-build --skip-lint --skip-deploy --skip-local-validator
