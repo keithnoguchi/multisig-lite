@@ -113,13 +113,13 @@ jobs:
       - name: Deploy the program
         run: |
           solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
-      - name: Run multisig create example
+      - name: Run create example
         run: cargo run --features ci --example create
-      - name: Run multisig get-state example
+      - name: Run get-state example
         run: cargo run --features ci --example get-state
-      - name: Run multisig get-fund example
+      - name: Run get-fund example
         run: cargo run --features ci --example get-fund
-      - name: Run multisig close example
+      - name: Run close example
         run: cargo run --features ci --example close
 
   anchor-build:
@@ -159,10 +159,8 @@ jobs:
         run: yarn install
       - name: Install Anchor-cli
         run: cargo install anchor-cli
-      - name: Run anchor build for IDL
-        run: anchor build
-      - name: Run cargo build-sbf
-        run: cargo build-sbf --workspace --features ci
+      - name: Run anchor build
+        run: anchor build -- --features ci
       - name: Create a default signer
         run: solana-keygen new --no-bip39-passphrase
       - name: Use the local cluster
