@@ -17,6 +17,7 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
   SOLANA_VERSION: v1.15.0
+  PROGRAM_ID: Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t
 
 defaults:
   run:
@@ -86,6 +87,30 @@ jobs:
         shell: bash
       - name: Run cargo test-sbf
         run: cargo test-sbf --workspace
+
+  run-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install Solana and SBF toolchain
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Run local validator
+        run: solana-test-validator -r -q &
+      - name: Deploy the program
+        run: |
+          solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
+      - name: Run create multisig example
+        run: cargo run --example create
+      - name: Run close multisig example
+        run: cargo run --example close
 
   anchor-build:
     runs-on: ubuntu-latest
