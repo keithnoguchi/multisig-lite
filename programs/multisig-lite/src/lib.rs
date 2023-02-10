@@ -71,8 +71,8 @@ pub enum Error {
 }
 
 /// A multisig [`State`] PDA account data.
-#[derive(Debug)]
 #[account]
+#[derive(Debug)]
 pub struct State {
     /// A threshold.
     pub m: u8,

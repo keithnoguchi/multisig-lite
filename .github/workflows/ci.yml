@@ -113,9 +113,11 @@ jobs:
       - name: Deploy the program
         run: |
           solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
-      - name: Run create multisig example
+      - name: Run multisig create example
         run: cargo run --features ci --example create
-      - name: Run close multisig example
+      - name: Run multisig state example
+        run: cargo run --features ci --example state
+      - name: Run multisig close example
         run: cargo run --features ci --example close
 
   anchor-build:
