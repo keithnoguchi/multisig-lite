@@ -106,11 +106,11 @@ jobs:
         run: cargo build-sbf --workspace
       - name: Create a default signer
         run: solana-keygen new --no-bip39-passphrase
-      - name: Run local validator
-        run: solana-test-validator -r -q &
-      - name: Deploy the program
+      - name: Set the local cluster
+        run: solana config set -u localhost
+      - name: Run local validator with the program
         run: |
-          solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
+          solana-test-validator -r -q --bpf-program $PROGRAM_ID ./target/deploy/multisig_lite.so
       - name: Run create multisig example
         run: cargo run --example create
       - name: Run close multisig example
