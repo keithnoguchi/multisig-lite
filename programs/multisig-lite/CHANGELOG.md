@@ -1,6 +1,8 @@
 # Version 0.0.7
 
 - Program test with `cargo test-sbf`
+- Add simple create and close Rust client examples
+- Add both test-sbf and examples under github actions.
 
 # Version 0.0.6
 
