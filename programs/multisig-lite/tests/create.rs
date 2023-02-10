@@ -1,9 +1,8 @@
-//! `multisig_list::State` unit tests.
+//! `multisig_list::multisig_list::create` instruction tests.
 
 use std::error::Error;
 use std::rc::Rc;
 
-use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_sdk::hash::Hash;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::{keypair::Keypair, Signer};
@@ -11,6 +10,7 @@ use solana_sdk::system_program;
 use solana_sdk::transaction::Transaction;
 
 use anchor_client::Program;
+use solana_program_test::{processor, BanksClient, ProgramTest};
 
 #[tokio::test]
 async fn create_with_signature() -> Result<(), Box<dyn Error>> {
@@ -91,6 +91,14 @@ impl Tester {
         ))
     }
 
+    fn state_pda(funder: &Pubkey) -> (Pubkey, u8) {
+        Pubkey::find_program_address(&[b"state", funder.as_ref()], &multisig_lite::id())
+    }
+
+    fn fund_pda(state: &Pubkey) -> (Pubkey, u8) {
+        Pubkey::find_program_address(&[b"fund", state.as_ref()], &multisig_lite::id())
+    }
+
     async fn start(self) -> (BanksClient, Rc<Keypair>, Hash, Program) {
         // Starts up the on-chain program.
         let (banks_client, funder, recent_blockhash) = self.0.start().await;
@@ -103,13 +111,5 @@ impl Tester {
             .program(multisig_lite::id());
 
         (banks_client, funder, recent_blockhash, program)
-    }
-
-    fn state_pda(funder: &Pubkey) -> (Pubkey, u8) {
-        Pubkey::find_program_address(&[b"state", funder.as_ref()], &multisig_lite::id())
-    }
-
-    fn fund_pda(state: &Pubkey) -> (Pubkey, u8) {
-        Pubkey::find_program_address(&[b"fund", state.as_ref()], &multisig_lite::id())
     }
 }
