@@ -103,7 +103,7 @@ jobs:
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
       - name: Create a default signer
-        run: solana-keygen new
+        run: solana-keygen new --no-bip39-passphrase
       - name: Run local validator
         run: solana-test-validator -r -q &
       - name: Deploy the program
