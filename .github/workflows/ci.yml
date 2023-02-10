@@ -136,3 +136,35 @@ jobs:
         run: cargo install anchor-cli
       - name: Run anchor build
         run: anchor build
+
+  anchor-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install Solana and BPF toolchain
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Install Anchor-cli
+        run: cargo install anchor-cli
+      - name: Run anchor build
+        run: anchor build --features ci
+      - name: Create a default signer
+        run: solana-keygen new --no-bip39-passphrase
+      - name: Use the local cluster
+        run: solana config set -u localhost
+      - name: Run the local validator
+        run: solana-test-validator -r -q &
+      - name: Deploy the program
+        run: |
+          solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
+      - name: Install Anchor-cli
+        run: cargo install anchor-cli
+      - name: Run anchor test
+        run: anchor test --features ci --skip-deploy --skip-local-validator

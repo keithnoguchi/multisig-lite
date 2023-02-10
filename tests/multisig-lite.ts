@@ -109,7 +109,7 @@ describe("multisig-lite", () => {
     }
   });
 
-  it("Checks the multisig state account state", async () => {
+  it("Checks the multisig state account", async () => {
     const ms = await program.account.state.fetch(state);
     expect(ms.m).to.equal(threshold);
     expect(ms.q).to.equal(queueDepth);
