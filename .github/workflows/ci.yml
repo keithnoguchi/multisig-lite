@@ -115,8 +115,10 @@ jobs:
           solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
       - name: Run multisig create example
         run: cargo run --features ci --example create
-      - name: Run multisig state example
-        run: cargo run --features ci --example state
+      - name: Run multisig get-state example
+        run: cargo run --features ci --example get-state
+      - name: Run multisig get-fund example
+        run: cargo run --features ci --example get-fund
       - name: Run multisig close example
         run: cargo run --features ci --example close
 

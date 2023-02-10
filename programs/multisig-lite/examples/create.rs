@@ -1,4 +1,9 @@
 //! `multisig_list::multisig_list::create` instruction example.
+//!
+//! Run with:
+//! ```
+//! cargo run --example create
+//! ```
 
 use std::error::Error;
 use std::rc::Rc;

@@ -1,9 +1,15 @@
-//! `multisig_list::State` instruction example.
+//! `multisig_list::State` query example.
+//!
+//! Run with:
+//! ```
+//! cargo run --example get-fund
+//! ```
 
 use std::error::Error;
 use std::rc::Rc;
 
 use clap::{Parser, ValueEnum};
+use solana_sdk::account::Account;
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::read_keypair_file;
@@ -48,11 +54,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Gets the PDAs.
     let (state_pda, _state_bump) =
         Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    let (fund_pda, _fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
 
-    // Gets the `multisig_lite::State` account.
-    let state: multisig_lite::State = program.account(state_pda)?;
+    // Query the `multisig_lite::State` account.
+    let fund: Account = program.rpc().get_account(&fund_pda)?;
 
-    println!("{state:?}");
+    println!("{fund:?}");
 
     Ok(())
 }

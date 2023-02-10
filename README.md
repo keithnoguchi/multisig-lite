@@ -22,6 +22,18 @@ for [Solana Blockchain].
 - [multisig-lite](programs/multisig-lite/README.md)
   - [devnet](https://explorer.solana.com/address/Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t?cluster=devnet)
 
+## Examples
+
+### Instructions
+
+- [`multisig_lite::multisig_lite::create`](programs/multisig-lite/examples/create.rs)
+- [`multisig_lite::multisig_lite::close`](programs/multisig-lite/examples/close.rs)
+
+### Accounts
+
+- [Multisig `State` account](programs/multisig-lite/examples/get-state.rs)
+- [Multisig Fund account](programs/multisig-lite/examples/get-fund.rs)
+
 ## License
 
 Licensed under either of
