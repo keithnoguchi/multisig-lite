@@ -53,11 +53,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Gets the remaining transfers to collects the rents.
     let state: multisig_lite::State = program.account(state_pda)?;
-    let remaining_accounts: Vec<_> = state.queue.into_iter().map(|pubkey| AccountMeta {
-        pubkey,
-        is_signer: false,
-        is_writable: true,
-    }).collect();
+    let remaining_accounts: Vec<_> = state
+        .queue
+        .into_iter()
+        .map(|pubkey| AccountMeta {
+            pubkey,
+            is_signer: false,
+            is_writable: true,
+        })
+        .collect();
 
     // Closes the multisig account.
     let sig = program
