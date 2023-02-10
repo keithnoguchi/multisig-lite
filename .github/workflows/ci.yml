@@ -17,7 +17,7 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
   SOLANA_VERSION: v1.15.0
-  PROGRAM_ID: ./github/keys/multisig_lite.json
+  PROGRAM_ID: ./.github/keys/multisig_lite.json
 
 defaults:
   run:
@@ -106,9 +106,9 @@ jobs:
         run: cargo build-sbf --workspace --features ci
       - name: Create a default signer
         run: solana-keygen new --no-bip39-passphrase
-      - name: Set the local cluster
+      - name: Use the local cluster
         run: solana config set -u localhost
-      - name: Run local validator with the program
+      - name: Run the local validator
         run: solana-test-validator -r -q &
       - name: Deploy the program
         run: |
