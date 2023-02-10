@@ -159,6 +159,8 @@ jobs:
         run: yarn install
       - name: Install Anchor-cli
         run: cargo install anchor-cli
+      - name: Run anchor build for IDL
+        run: anchor build
       - name: Run cargo build-sbf
         run: cargo build-sbf --workspace --features ci
       - name: Create a default signer
