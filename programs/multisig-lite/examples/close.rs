@@ -73,7 +73,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .args(multisig_lite::instruction::Close {
             _state_bump: state_bump,
-            fund_bump: fund_bump,
+            fund_bump,
         })
         .accounts(remaining_accounts)
         .signer(funder.as_ref())
