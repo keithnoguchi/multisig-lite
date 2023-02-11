@@ -22,15 +22,18 @@ for [Solana Blockchain].
 - [multisig-lite](programs/multisig-lite/README.md)
   - [devnet](https://explorer.solana.com/address/Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t?cluster=devnet)
 
-## Examples
+## Test
 
-### Rust
+[solana local development]: https://docs.solana.com/getstarted/local
 
-- [`multisig_lite::multisig_lite::create` instruction](programs/multisig-lite/examples/create.rs)
-- [`multisig_lite::multisig_lite::fund` instruction](programs/multisig-lite/examples/fund.rs)
-- [`multisig_lite::multisig_lite::close` instruction](programs/multisig-lite/examples/close.rs)
-- [Multisig `State` account](programs/multisig-lite/examples/get-state.rs)
-- [Multisig Fund account](programs/multisig-lite/examples/get-fund.rs)
+Run those anchor commands on the [Solana local development] environment:
+
+```
+$ anchor build -- --features localnet
+$ anchor run cp-program-keypair
+$ anchor run validator
+$ anchor test --skip-build --skip-local-validator
+```
 
 ## License
 

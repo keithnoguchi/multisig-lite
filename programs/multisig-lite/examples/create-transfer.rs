@@ -12,7 +12,7 @@ use clap::{Parser, ValueEnum};
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::read_keypair_file;
-use solana_sdk::signer::Signer;
+use solana_sdk::signer::{keypair::Keypair, Signer};
 use solana_sdk::system_program;
 
 use anchor_client::{Client, Cluster};
@@ -23,8 +23,8 @@ struct Args {
     #[arg(short, long, value_enum, default_value_t = ClusterArg::Localnet)]
     cluster: ClusterArg,
 
-    /// Lamports to fund to the multisig fund account, 0.005SOL by default.
-    #[arg(short, long, default_value_t = 5_000_000)]
+    /// Lamports to fund to the multisig fund account, 0.0001SOL by default.
+    #[arg(short, long, default_value_t = 100_000)]
     lamports: u64,
 }
 
@@ -60,21 +60,30 @@ fn main() -> Result<(), Box<dyn Error>> {
         Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
     let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
 
+    // Temporary transfer keypair.
+    //
+    // This is only required for the transaction signature and
+    // won't be required once the transaction is recorded on the
+    // ledger.
+    let transfer = Keypair::new();
+
     // Funds the multisig account.
     let sig = program
         .request()
-        .accounts(multisig_lite::accounts::Fund {
-            funder: funder.pubkey(),
+        .accounts(multisig_lite::accounts::CreateTransfer {
+            creator: funder.pubkey(),
             state: state_pda,
             fund: fund_pda,
+            transfer: transfer.pubkey(),
             system_program: system_program::id(),
         })
-        .args(multisig_lite::instruction::Fund {
+        .args(multisig_lite::instruction::CreateTransfer {
+            recipient: Pubkey::new_unique(),
             lamports: args.lamports,
-            _state_bump,
             fund_bump,
         })
         .signer(funder.as_ref())
+        .signer(&transfer)
         .send()?;
 
     println!("{sig}");
