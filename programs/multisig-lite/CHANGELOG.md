@@ -1,3 +1,9 @@
+# Version 0.0.7
+
+- Run Rust client examples in CI.
+- Run anchor test in CI.
+- Add preliminary solana-program-test based functional tests.
+
 # Version 0.0.6
 
 - Deployed to the [devnet].

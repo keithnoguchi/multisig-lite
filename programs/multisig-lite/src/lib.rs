@@ -9,7 +9,10 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::program::{invoke, invoke_signed};
 use anchor_lang::solana_program::system_instruction;
 
+#[cfg(not(feature = "localnet"))]
 declare_id!("Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t");
+#[cfg(feature = "localnet")]
+declare_id!("AeAQKcvUbG6LmunEAiL2Vim5dN2uL5TNwJfgsGdyroQ3");
 
 /// A multisig program specific error code.
 #[error_code]
@@ -69,6 +72,7 @@ pub enum Error {
 
 /// A multisig [`State`] PDA account data.
 #[account]
+#[derive(Debug)]
 pub struct State {
     /// A threshold.
     pub m: u8,
@@ -85,7 +89,7 @@ pub struct State {
     /// A balance of the fund in lamports.
     pub balance: u64,
 
-    /// A maximum pending transactions.
+    /// A limit of the pending transactions.
     pub q: u8,
 
     /// An array of the pending transactions.
@@ -122,12 +126,12 @@ impl State {
     }
 
     /// Checks if the transfer queue is empty.
-    fn is_empty(&self) -> bool {
+    fn is_queue_empty(&self) -> bool {
         self.queue.is_empty()
     }
 
     /// Check if the multisig queue is full.
-    fn is_full(&self) -> bool {
+    fn is_queue_full(&self) -> bool {
         self.queue.len() == self.q as usize
     }
 
@@ -143,7 +147,7 @@ impl State {
     /// Validates the multisig queue.
     #[allow(clippy::result_large_err)]
     fn validate_queue(&self) -> Result<()> {
-        require!(!self.is_full(), Error::AccountFull);
+        require!(!self.is_queue_full(), Error::AccountFull);
         Ok(())
     }
 
@@ -227,16 +231,17 @@ impl State {
 
 /// A multisig [`Transfer`] account data.
 #[account]
+#[derive(Debug)]
 pub struct Transfer {
     /// An creator of the transfer, one of the multisig
     /// signers.
-    creator: Pubkey,
+    pub creator: Pubkey,
 
     /// A recipient of the transfer.
-    recipient: Pubkey,
+    pub recipient: Pubkey,
 
     /// A lamports to transfer.
-    lamports: u64,
+    pub lamports: u64,
 }
 
 impl Transfer {
@@ -392,12 +397,15 @@ pub mod multisig_lite {
         let state = &mut ctx.accounts.state;
         let fund = &mut ctx.accounts.fund;
 
+        // At least one signer is required.
+        require_gte!(m, State::MIN_SIGNERS, Error::NoSigners);
+
         // Validate the multisig fund account.
         State::validate_fund(state, fund, fund_bump)?;
 
         // Checks the uniqueness of signer's address.
         let signers: HashSet<_> = signers.into_iter().collect();
-        require_gte!(signers.len(), State::MIN_SIGNERS as usize, Error::NoSigners,);
+        require_gte!(signers.len(), State::MIN_SIGNERS as usize, Error::NoSigners);
         require_gte!(
             State::MAX_SIGNERS as usize,
             signers.len(),
@@ -512,7 +520,7 @@ pub mod multisig_lite {
         State::validate_fund(state, fund, fund_bump)?;
 
         // Nothing to approve.
-        require!(!state.is_empty(), Error::AccountEmpty);
+        require!(!state.is_queue_empty(), Error::AccountEmpty);
 
         // Checks the signer.
         let signer_key = signer.key();
@@ -576,7 +584,7 @@ pub mod multisig_lite {
         state.queue = remaining;
 
         // Reset the signed status once the queue is empty.
-        if state.is_empty() {
+        if state.is_queue_empty() {
             state.signed.iter_mut().for_each(|signed| *signed = false);
         }
 

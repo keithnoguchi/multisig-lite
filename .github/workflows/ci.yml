@@ -16,6 +16,8 @@ env:
   RUSTFLAGS: -D warnings
   RUSTDOCFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
+  SOLANA_VERSION: v1.15.0
+  PROGRAM_KEYPAIR: ./.github/keys/multisig_lite-keypair.json
 
 defaults:
   run:
@@ -30,8 +32,7 @@ jobs:
       - name: Install Rust
         run: rustup update stable
       - name: Run cargo fmt
-        run: |
-          cargo fmt --all --check
+        run: cargo fmt --all --check
 
   clippy:
     runs-on: ubuntu-latest
@@ -53,23 +54,87 @@ jobs:
         run: |
           cargo check --all-features --all-targets --bins --examples
 
-  build-bpf:
+  build-sbf:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Install Rust
         run: rustup update stable
-      - name: Install Solana and BPF toolchain
+      - name: Install Solana and SBF toolchain
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
       - name: Add solana command to the PATH environment
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
-      - name: Run cargo build-bpf
+      - name: Run cargo build-sbf
+        run: cargo build-sbf --workspace
+
+  test-sbf:
+    runs-on: ubuntu-latest
+    # It fails on github action with InvalidAccountData as in [1].
+    #
+    # [1] https://github.com/keithnoguchi/multisig-lite/actions/runs/4150237923/jobs/7179755757
+    if: ${{ false }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install Solana and SBF toolchain
         run: |
-          cargo build-bpf --workspace
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Run cargo test-sbf
+        run: cargo test-sbf --workspace
+
+  run-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install Solana and SBF toolchain
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Run cargo build-sbf
+        run: cargo build-sbf --workspace --features localnet
+      - name: Create a default signer
+        run: solana-keygen new --no-bip39-passphrase
+      - name: Use the local cluster
+        run: solana config set -u localhost
+      - name: Run the local validator
+        run: solana-test-validator -r -q &
+      - name: Deploy the program
+        run: |
+          solana program deploy --program-id $PROGRAM_KEYPAIR ./target/deploy/multisig_lite.so
+      - name: Run create example
+        run: cargo run --features localnet --example create -- -m 1
+      - name: Run fund example
+        run: cargo run --features localnet --example fund -- --lamports 1000000000
+      - name: Run get-fund example
+        run: cargo run --features localnet --example get-fund
+      - name: Run create-transfer example
+        run: cargo run --features localnet --example create-transfer
+      - name: Run get-transfers example
+        run: cargo run --features localnet --example get-transfers
+      - name: Run get-state example
+        run: cargo run --features localnet --example get-state
+      - name: Run approve example
+        run: cargo run --features localnet --example approve
+      - name: Run get-state example
+        run: cargo run --features localnet --example get-state
+      - name: Run close example
+        run: cargo run --features localnet --example close
 
   anchor-build:
     runs-on: ubuntu-latest
@@ -80,7 +145,7 @@ jobs:
         run: rustup update stable
       - name: Install Solana and BPF toolchain
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.15.0/install)"
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
       - name: Add solana command to the PATH environment
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
@@ -89,3 +154,34 @@ jobs:
         run: cargo install anchor-cli
       - name: Run anchor build
         run: anchor build
+
+  anchor-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install Solana and BPF toolchain
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Install JavaScript packages
+        run: yarn install
+      - name: Install Anchor-cli
+        run: cargo install anchor-cli
+      - name: Create a default signer
+        run: solana-keygen new --no-bip39-passphrase
+      - name: Use the local cluster
+        run: solana config set -u localhost
+      - name: Run the local validator
+        run: anchor run validator
+      - name: Run anchor build
+        run: anchor build -- --features localnet
+      - name: Copy the program keypair file
+        run: anchor run cp-program-keypair
+      - name: Run anchor test
+        run: anchor test --skip-local-validator --skip-build

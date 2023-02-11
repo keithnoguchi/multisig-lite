@@ -22,6 +22,20 @@ for [Solana Blockchain].
 - [multisig-lite](programs/multisig-lite/README.md)
   - [devnet](https://explorer.solana.com/address/Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t?cluster=devnet)
 
+## Test
+
+[solana local development]: https://docs.solana.com/getstarted/local
+
+Run those anchor commands on the [Solana local development] environment:
+
+```
+$ yarn install
+$ anchor build -- --features localnet
+$ anchor run cp-program-keypair
+$ anchor run validator
+$ anchor test --skip-build --skip-local-validator
+```
+
 ## License
 
 Licensed under either of
