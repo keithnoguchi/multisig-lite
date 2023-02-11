@@ -71,22 +71,22 @@ jobs:
       - name: Run cargo build-sbf
         run: cargo build-sbf --workspace
 
-  test-sbf:
+  test-bpf:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Install Rust
         run: rustup update stable
-      - name: Install Solana and SBF toolchain
+      - name: Install Solana and BPF toolchain
         run: |
           sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
       - name: Add solana command to the PATH environment
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
-      - name: Run cargo test-sbf
-        run: cargo test-sbf --workspace
+      - name: Run cargo test-bpf
+        run: cargo test-bpf --workspace
 
   run-examples:
     runs-on: ubuntu-latest

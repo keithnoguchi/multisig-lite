@@ -32,7 +32,7 @@ async fn create() {
     let fund = tester.get_fund_account().await;
     assert_eq!(fund.data.len(), 0);
     assert_eq!(fund.owner, tester.program.id());
-    assert_eq!(fund.executable, false);
+    assert!(!fund.executable);
 }
 
 #[tokio::test]
