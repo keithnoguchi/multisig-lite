@@ -1,43 +1,67 @@
 //! `multisig_list::multisig_list::create` instruction tests.
 
 use solana_sdk::account::Account;
+use solana_sdk::commitment_config::CommitmentLevel;
 use solana_sdk::hash::Hash;
+use solana_sdk::instruction::InstructionError;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
 use solana_sdk::signer::Signer;
 use solana_sdk::system_program;
-use solana_sdk::transaction::Transaction;
+use solana_sdk::transaction::{Transaction, TransactionError};
+
+use anchor_client::anchor_lang::AccountDeserialize;
 
 #[tokio::test]
 async fn create() {
     let mut tester = CreateTester::new().await;
     tester.with_signature().process_transaction().await.unwrap();
 
-    // Queries the state account.
-    let state_info = tester.get_state_account().await;
-    // Queries the fund account.
-    let fund_info = tester.get_fund_account().await;
+    // State account.
+    let state = tester.get_state_account().await;
+    assert_eq!(state.m, 3);
+    assert_eq!(state.signers.len(), 5);
+    assert_eq!(state.signed.len(), 5);
+    state.signed.iter().for_each(|signed| assert!(!*signed));
+    assert_eq!(state.fund, tester.fund_pda);
+    assert_eq!(state.balance, 0);
+    assert_eq!(state.q, 10);
+    assert_eq!(state.queue.len(), 0);
 
-    println!("{state_info:?}, {fund_info:?}");
+    // Fund account.
+    let fund = tester.get_fund_account().await;
+    assert_eq!(fund.data.len(), 0);
+    assert_eq!(fund.owner, tester.program.id());
+    assert_eq!(fund.executable, false);
 }
 
 #[tokio::test]
 async fn create_with_zero_threshold() {
-    let got = CreateTester::new()
+    let err = CreateTester::new()
         .await
         .with_m(0)
         .with_signature()
         .process_transaction()
-        .await;
+        .await
+        .err()
+        .unwrap();
 
-    assert!(got.is_err());
+    assert_eq!(
+        err.unwrap(),
+        TransactionError::InstructionError(0, InstructionError::Custom(6008)),
+    );
 }
 
 #[tokio::test]
 async fn create_without_signature() {
-    let got = CreateTester::new().await.process_transaction().await;
+    let err = CreateTester::new()
+        .await
+        .process_transaction()
+        .await
+        .err()
+        .unwrap();
 
-    assert!(got.is_err());
+    assert_eq!(err.unwrap(), TransactionError::SignatureFailure);
 }
 
 struct CreateTester {
@@ -47,6 +71,7 @@ struct CreateTester {
     recent_blockhash: Hash,
     with_signature: bool,
     m: u8,
+    signers: Vec<Pubkey>,
     q: u8,
     state_pda: Pubkey,
     state_bump: u8,
@@ -68,13 +93,22 @@ impl CreateTester {
         // Wrap the founder keypair to be able to be passed to the anchor program.
         let funder = std::rc::Rc::new(funder);
 
+        // Default 5 signers, including the funder.
+        let signers = vec![
+            funder.pubkey(),
+            Pubkey::new_unique(),
+            Pubkey::new_unique(),
+            Pubkey::new_unique(),
+            Pubkey::new_unique(),
+        ];
+
         // Creates an anchor::Program for `solana_sdk::instruction::Instruction`s.
         let cluster = anchor_client::Cluster::Localnet;
         let program = anchor_client::Client::new(cluster, funder.clone()).program(pid);
 
         // Find PDAs.
         let (state_pda, state_bump) =
-            Pubkey::find_program_address(&[b"state", &funder.pubkey().as_ref()], &pid);
+            Pubkey::find_program_address(&[b"state", (funder.pubkey().as_ref())], &pid);
         let (fund_pda, fund_bump) =
             Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
 
@@ -84,7 +118,8 @@ impl CreateTester {
             funder,
             recent_blockhash,
             with_signature: false,
-            m: 2,
+            m: 3,
+            signers,
             q: 10,
             state_pda,
             state_bump,
@@ -103,12 +138,24 @@ impl CreateTester {
         self
     }
 
-    async fn get_state_account(&mut self) -> Option<Account> {
-        self.client.get_account(self.state_pda).await.unwrap()
+    async fn get_state_account(&mut self) -> multisig_lite::State {
+        self.client
+            .get_account_with_commitment(self.state_pda, CommitmentLevel::Processed)
+            .await
+            .unwrap()
+            .map(|account| {
+                let mut data: &[u8] = &account.data;
+                multisig_lite::State::try_deserialize(&mut data).unwrap()
+            })
+            .unwrap()
     }
 
-    async fn get_fund_account(&mut self) -> Option<Account> {
-        self.client.get_account(self.fund_pda).await.unwrap()
+    async fn get_fund_account(&mut self) -> Account {
+        self.client
+            .get_account(self.fund_pda)
+            .await
+            .unwrap()
+            .unwrap()
     }
 
     async fn process_transaction(&mut self) -> Result<(), solana_program_test::BanksClientError> {
@@ -123,11 +170,7 @@ impl CreateTester {
             })
             .args(multisig_lite::instruction::Create {
                 m: self.m,
-                signers: vec![
-                    self.funder.pubkey(),
-                    Pubkey::new_unique(),
-                    Pubkey::new_unique(),
-                ],
+                signers: self.signers.clone(),
                 q: self.q,
                 _state_bump: self.state_bump,
                 fund_bump: self.fund_bump,
