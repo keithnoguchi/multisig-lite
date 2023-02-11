@@ -125,6 +125,10 @@ jobs:
         run: cargo run --features localnet --example get-transfers
       - name: Run get-state example
         run: cargo run --features localnet --example get-state
+      - name: Run approve example
+        run: cargo run --features localnet --example approve
+      - name: Run get-state example
+        run: cargo run --features localnet --example get-state
       - name: Run close example
         run: cargo run --features localnet --example close
 
