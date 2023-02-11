@@ -1,9 +1,9 @@
-//! `multisig_list::multisig_list::create` instruction tests.
+//! `multisig_list::multisig_list::close` instruction tests.
 
 use solana_sdk::account::Account;
 use solana_sdk::commitment_config::CommitmentLevel;
 use solana_sdk::hash::Hash;
-use solana_sdk::instruction::InstructionError;
+use solana_sdk::instruction::AccountMeta;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
 use solana_sdk::signer::Signer;
@@ -13,53 +13,32 @@ use solana_sdk::transaction::{Transaction, TransactionError};
 use anchor_client::anchor_lang::AccountDeserialize;
 
 #[tokio::test]
-async fn create() {
+async fn close() {
     let mut tester = Tester::new().await;
-    tester.with_signature().create_transaction().await.unwrap();
 
-    // State account.
-    let state = tester.get_state_account().await;
-    assert_eq!(state.m, 3);
-    assert_eq!(state.signers.len(), 5);
-    assert_eq!(state.signed.len(), 5);
-    state.signed.iter().for_each(|signed| assert!(!*signed));
-    assert_eq!(state.fund, tester.fund_pda);
-    assert_eq!(state.balance, 0);
-    assert_eq!(state.q, 10);
-    assert_eq!(state.queue.len(), 0);
+    // Creates a multisig account.
+    tester.create_transaction().await;
 
-    // Fund account.
-    let fund = tester.get_fund_account().await;
-    assert_eq!(fund.data.len(), 0);
-    assert_eq!(fund.owner, tester.program.id());
-    assert!(!fund.executable);
+    // Make sure state and fund accounts exist.
+    assert!(tester.get_state_account().await.is_some());
+    assert!(tester.get_fund_account().await.is_some());
+
+    // Then close it.
+    assert!(tester.with_signature().close_transaction().await.is_ok());
+
+    // And double check it's gone.
+    assert!(tester.get_state_account().await.is_none());
+    assert!(tester.get_fund_account().await.is_none());
 }
 
 #[tokio::test]
-async fn create_with_zero_threshold() {
-    let err = Tester::new()
-        .await
-        .with_m(0)
-        .with_signature()
-        .create_transaction()
-        .await
-        .err()
-        .unwrap();
+async fn close_without_signature() {
+    let mut tester = Tester::new().await;
 
-    assert_eq!(
-        err.unwrap(),
-        TransactionError::InstructionError(0, InstructionError::Custom(6008)),
-    );
-}
+    // Creates a multisig account.
+    tester.create_transaction().await;
 
-#[tokio::test]
-async fn create_without_signature() {
-    let err = Tester::new()
-        .await
-        .create_transaction()
-        .await
-        .err()
-        .unwrap();
+    let err = tester.close_transaction().await.err().unwrap();
 
     assert_eq!(err.unwrap(), TransactionError::SignatureFailure);
 }
@@ -128,17 +107,12 @@ impl Tester {
         }
     }
 
-    fn with_m(&mut self, m: u8) -> &mut Self {
-        self.m = m;
-        self
-    }
-
     fn with_signature(&mut self) -> &mut Self {
         self.with_signature = true;
         self
     }
 
-    async fn get_state_account(&mut self) -> multisig_lite::State {
+    async fn get_state_account(&mut self) -> Option<multisig_lite::State> {
         self.client
             .get_account_with_commitment(self.state_pda, CommitmentLevel::Processed)
             .await
@@ -147,18 +121,13 @@ impl Tester {
                 let mut data: &[u8] = &account.data;
                 multisig_lite::State::try_deserialize(&mut data).unwrap()
             })
-            .unwrap()
     }
 
-    async fn get_fund_account(&mut self) -> Account {
-        self.client
-            .get_account(self.fund_pda)
-            .await
-            .unwrap()
-            .unwrap()
+    async fn get_fund_account(&mut self) -> Option<Account> {
+        self.client.get_account(self.fund_pda).await.unwrap()
     }
 
-    async fn create_transaction(&mut self) -> Result<(), solana_program_test::BanksClientError> {
+    async fn create_transaction(&mut self) {
         let ixs = self
             .program
             .request()
@@ -175,6 +144,40 @@ impl Tester {
                 _state_bump: self.state_bump,
                 fund_bump: self.fund_bump,
             })
+            .instructions()
+            .unwrap();
+
+        let mut tx = Transaction::new_with_payer(&ixs, Some(&self.funder.pubkey()));
+        tx.sign(&[self.funder.as_ref()], self.recent_blockhash);
+        self.client.process_transaction(tx).await.unwrap();
+    }
+
+    async fn close_transaction(&mut self) -> Result<(), solana_program_test::BanksClientError> {
+        // Gets the remaining transfers to collects the rents.
+        let state: multisig_lite::State = self.get_state_account().await.unwrap();
+        let remaining_accounts: Vec<_> = state
+            .queue
+            .into_iter()
+            .map(|pubkey| AccountMeta {
+                pubkey,
+                is_signer: false,
+                is_writable: true,
+            })
+            .collect();
+
+        let ixs = self
+            .program
+            .request()
+            .accounts(multisig_lite::accounts::Close {
+                funder: self.funder.pubkey(),
+                state: self.state_pda,
+                fund: self.fund_pda,
+            })
+            .args(multisig_lite::instruction::Close {
+                _state_bump: self.state_bump,
+                fund_bump: self.fund_bump,
+            })
+            .accounts(remaining_accounts)
             .instructions()
             .unwrap();
 

@@ -1,3 +1,9 @@
+# Version 0.0.8
+
+- Rust functional tests for all the instructions.
+- Adds example Rust code in program instruction documentation.
+- Runs cargo test-spf in CI.
+
 # Version 0.0.7
 
 - Run Rust client examples in CI.

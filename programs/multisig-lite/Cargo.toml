@@ -2,7 +2,7 @@
 name = "multisig-lite"
 # When publish a new version:
 # - Update CHANGELOG.md
-version = "0.0.7"
+version = "0.0.8"
 edition = "2021"
 authors = ["Keith Noguchi <keith@noguchi.us>"]
 license = "MIT OR Apache-2.0"
@@ -35,4 +35,4 @@ shellexpand = "3"
 solana-client = "~1.14"
 solana-program-test = "~1.14"
 solana-sdk = "~1.14"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["macros"] }
