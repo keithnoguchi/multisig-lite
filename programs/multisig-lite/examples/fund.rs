@@ -23,8 +23,8 @@ struct Args {
     #[arg(short, long, value_enum, default_value_t = ClusterArg::Localnet)]
     cluster: ClusterArg,
 
-    /// Lamports to fund to the multisig fund account, 0.005SOL by default.
-    #[arg(short, long, default_value_t = 5_000_000)]
+    /// Lamports to fund to the multisig fund account, 0.05SOL by default.
+    #[arg(short, long, default_value_t = 50_000_000)]
     lamports: u64,
 }
 

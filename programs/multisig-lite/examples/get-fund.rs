@@ -1,4 +1,4 @@
-//! `multisig_list::State` query example.
+//! `multisig_list` Fund account query example.
 //!
 //! Run with:
 //! ```

@@ -1,8 +1,8 @@
-//! `multisig_list::State` account query example.
+//! `multisig_list::Transfer` query example.
 //!
 //! Run with:
 //! ```
-//! cargo run --example get-state
+//! cargo run --example get-transfers
 //! ```
 
 use std::error::Error;
@@ -54,10 +54,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (state_pda, _state_bump) =
         Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
 
-    // Query the `multisig_lite::State` account.
+    // Query the `multisig_lite::State` account to get the queued transfers.
     let state: multisig_lite::State = program.account(state_pda)?;
 
-    println!("{state:?}");
+    // Query the `multisig_lite::Transfer` accounts iteratively.
+    for transfer in state.queue {
+        let transfer: multisig_lite::Transfer = program.account(transfer)?;
+        println!("{transfer:?}");
+    }
 
     Ok(())
 }

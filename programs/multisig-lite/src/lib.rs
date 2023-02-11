@@ -231,6 +231,7 @@ impl State {
 
 /// A multisig [`Transfer`] account data.
 #[account]
+#[derive(Debug)]
 pub struct Transfer {
     /// An creator of the transfer, one of the multisig
     /// signers.
