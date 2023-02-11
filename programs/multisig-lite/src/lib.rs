@@ -397,12 +397,15 @@ pub mod multisig_lite {
         let state = &mut ctx.accounts.state;
         let fund = &mut ctx.accounts.fund;
 
+        // At least one signer is required.
+        require_gte!(m, State::MIN_SIGNERS, Error::NoSigners);
+
         // Validate the multisig fund account.
         State::validate_fund(state, fund, fund_bump)?;
 
         // Checks the uniqueness of signer's address.
         let signers: HashSet<_> = signers.into_iter().collect();
-        require_gte!(signers.len(), State::MIN_SIGNERS as usize, Error::NoSigners,);
+        require_gte!(signers.len(), State::MIN_SIGNERS as usize, Error::NoSigners);
         require_gte!(
             State::MAX_SIGNERS as usize,
             signers.len(),

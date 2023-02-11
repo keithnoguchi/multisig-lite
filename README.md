@@ -29,6 +29,7 @@ for [Solana Blockchain].
 Run those anchor commands on the [Solana local development] environment:
 
 ```
+$ yarn install
 $ anchor build -- --features localnet
 $ anchor run cp-program-keypair
 $ anchor run validator

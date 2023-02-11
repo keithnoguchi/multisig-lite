@@ -62,16 +62,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     for transfer_pubkey in state.queue {
         let transfer: multisig_lite::Transfer = program.account(transfer_pubkey)?;
 
-        // Pushes the recipient account.
+        // Pushes the transfer account.
         remaining_accounts.push(AccountMeta {
-            pubkey: transfer.recipient,
+            pubkey: transfer_pubkey,
             is_signer: false,
             is_writable: true,
         });
 
-        // Pushes the transfer account.
+        // Pushes the recipient account.
         remaining_accounts.push(AccountMeta {
-            pubkey: transfer_pubkey,
+            pubkey: transfer.recipient,
             is_signer: false,
             is_writable: true,
         });
