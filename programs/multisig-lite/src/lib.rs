@@ -9,9 +9,9 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::program::{invoke, invoke_signed};
 use anchor_lang::solana_program::system_instruction;
 
-#[cfg(not(feature = "ci"))]
+#[cfg(not(feature = "localnet"))]
 declare_id!("Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t");
-#[cfg(feature = "ci")]
+#[cfg(feature = "localnet")]
 declare_id!("AeAQKcvUbG6LmunEAiL2Vim5dN2uL5TNwJfgsGdyroQ3");
 
 /// A multisig program specific error code.

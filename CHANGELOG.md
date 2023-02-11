@@ -1,8 +1,9 @@
 # Version 0.0.7
 
-- Program test with `cargo test-sbf`
-- Add simple create and close Rust client examples
-- Add both test-sbf and examples under github actions.
+- Rust client examples in programs/multisig-lite/examples
+- Run Rust client examples in CI
+- Run anchor test in CI
+- Add preliminary solana-program-test based functional tests.
 
 # Version 0.0.6
 

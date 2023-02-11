@@ -24,13 +24,11 @@ for [Solana Blockchain].
 
 ## Examples
 
-### Instructions
+### Rust
 
-- [`multisig_lite::multisig_lite::create`](programs/multisig-lite/examples/create.rs)
-- [`multisig_lite::multisig_lite::close`](programs/multisig-lite/examples/close.rs)
-
-### Accounts
-
+- [`multisig_lite::multisig_lite::create` instruction](programs/multisig-lite/examples/create.rs)
+- [`multisig_lite::multisig_lite::fund` instruction](programs/multisig-lite/examples/fund.rs)
+- [`multisig_lite::multisig_lite::close` instruction](programs/multisig-lite/examples/close.rs)
 - [Multisig `State` account](programs/multisig-lite/examples/get-state.rs)
 - [Multisig Fund account](programs/multisig-lite/examples/get-fund.rs)
 

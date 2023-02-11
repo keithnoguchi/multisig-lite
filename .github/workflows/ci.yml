@@ -17,7 +17,7 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
   SOLANA_VERSION: v1.15.0
-  PROGRAM_ID: ./.github/keys/multisig_lite.json
+  PROGRAM_KEYPAIR: ./.github/keys/multisig_lite-keypair.json
 
 defaults:
   run:
@@ -103,7 +103,7 @@ jobs:
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
       - name: Run cargo build-sbf
-        run: cargo build-sbf --workspace --features ci
+        run: cargo build-sbf --workspace --features localnet
       - name: Create a default signer
         run: solana-keygen new --no-bip39-passphrase
       - name: Use the local cluster
@@ -112,17 +112,17 @@ jobs:
         run: solana-test-validator -r -q &
       - name: Deploy the program
         run: |
-          solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
+          solana program deploy --program-id $PROGRAM_KEYPAIR ./target/deploy/multisig_lite.so
       - name: Run create example
-        run: cargo run --features ci --example create
+        run: cargo run --features localnet --example create
       - name: Run fund example
-        run: cargo run --features ci --example fund -- --lamports 1000000000
+        run: cargo run --features localnet --example fund -- --lamports 1000000000
       - name: Run get-state example
-        run: cargo run --features ci --example get-state
+        run: cargo run --features localnet --example get-state
       - name: Run get-fund example
-        run: cargo run --features ci --example get-fund
+        run: cargo run --features localnet --example get-fund
       - name: Run close example
-        run: cargo run --features ci --example close
+        run: cargo run --features localnet --example close
 
   anchor-build:
     runs-on: ubuntu-latest
@@ -161,16 +161,13 @@ jobs:
         run: yarn install
       - name: Install Anchor-cli
         run: cargo install anchor-cli
-      - name: Run anchor build
-        run: anchor build -- --features ci
       - name: Create a default signer
         run: solana-keygen new --no-bip39-passphrase
       - name: Use the local cluster
         run: solana config set -u localhost
       - name: Run the local validator
         run: solana-test-validator -r -q &
-      - name: Deploy the program
-        run: |
-          solana program deploy --program-id $PROGRAM_ID ./target/deploy/multisig_lite.so
+      - name: Copy the program keypair file
+        run: anchor run cp-keypair
       - name: Run anchor test
-        run: anchor test --skip-build --skip-lint --skip-deploy --skip-local-validator
+        run: anchor test --skip-local-validator -- --features localnet

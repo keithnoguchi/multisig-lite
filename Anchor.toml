@@ -6,7 +6,7 @@ skip-lint = false
 multisig_lite = "Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t"
 
 [programs.localnet]
-multisig_lite = "Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t"
+multisig_lite = "AeAQKcvUbG6LmunEAiL2Vim5dN2uL5TNwJfgsGdyroQ3"
 
 [registry]
 url = "https://api.apr.dev"
@@ -17,4 +17,5 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 fmt = "cargo fmt && yarn lint:fix"
+cp-keypair = "cp .github/keys/multisig_lite-keypair.json ./target/deploy/"
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
