@@ -54,23 +54,6 @@ jobs:
         run: |
           cargo check --all-features --all-targets --bins --examples
 
-  build-sbf:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3
-      - name: Install Rust
-        run: rustup update stable
-      - name: Install Solana and SBF toolchain
-        run: |
-          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
-      - name: Add solana command to the PATH environment
-        run: |
-          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
-        shell: bash
-      - name: Run cargo build-sbf
-        run: cargo build-sbf --workspace
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -91,6 +74,23 @@ jobs:
         run: rustup update stable
       - name: Run cargo test --doc
         run: cargo test --doc
+
+  build-sbf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install Solana and SBF toolchain
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/$SOLANA_VERSION/install)"
+      - name: Add solana command to the PATH environment
+        run: |
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Run cargo build-sbf
+        run: cargo build-sbf --workspace
 
   test-sbf:
     runs-on: ubuntu-latest

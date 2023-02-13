@@ -88,10 +88,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 [solana-program-test]: https://crates.io/crates/solana-program-test
 
-You can run [solana-program-test] based functional tests:
+You can run [solana-program-test] based functional tests with the standard
+`cargo test` command:
 
 ```
-$ cargo test-spf
+$ cargo test
 ```
 
 ## License

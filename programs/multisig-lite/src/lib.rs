@@ -619,7 +619,7 @@ pub mod multisig_lite {
         Ok(())
     }
 
-    /// Funds lamports to the multisig account.
+    /// Funds lamports to the multisig fund account.
     ///
     /// The funding is only allowed by the multisig account funder.
     ///
