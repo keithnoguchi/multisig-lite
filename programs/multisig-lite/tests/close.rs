@@ -26,7 +26,7 @@ async fn close() {
     // Then close it.
     assert!(tester.with_signature().close().await.is_ok());
 
-    // And double check it's gone.
+    // And double check if it's gone.
     assert!(tester.get_state_account().await.is_none());
     assert!(tester.get_fund_account().await.is_none());
 }
@@ -153,7 +153,7 @@ impl Tester {
 
     async fn close(&mut self) -> Result<(), solana_program_test::BanksClientError> {
         // Gets the remaining transfers to collects the rents.
-        let state: multisig_lite::State = self.get_state_account().await.unwrap();
+        let state = self.get_state_account().await.unwrap();
         let remaining_accounts: Vec<_> = state
             .queue
             .into_iter()

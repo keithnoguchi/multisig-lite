@@ -1,6 +1,8 @@
-//! `multisig_list::multisig_list::create_transfer` instruction tests.
+//! `multisig_list::multisig_list::approve` instruction tests.
 
+use solana_sdk::commitment_config::CommitmentLevel;
 use solana_sdk::hash::Hash;
+use solana_sdk::instruction::AccountMeta;
 use solana_sdk::native_token::LAMPORTS_PER_SOL;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
@@ -8,41 +10,31 @@ use solana_sdk::signer::Signer;
 use solana_sdk::system_program;
 use solana_sdk::transaction::{Transaction, TransactionError};
 
+use anchor_client::anchor_lang::AccountDeserialize;
+
 #[tokio::test]
-async fn create_transfer() {
+async fn approve() {
     let mut tester = Tester::new().await;
 
-    // Creates and funds the  multisig account.
+    // Creates, funds, and creates transfers on the multisig account.
     tester.create().await;
     tester.fund().await;
+    tester.create_transfers().await;
 
-    // Then creates a transfer.
-    let transfer = Keypair::new();
-    let recipient = Pubkey::new_unique();
-    let lamports = 2_000 * LAMPORTS_PER_SOL;
-    assert!(tester
-        .with_signature()
-        .create_transfer(&transfer, recipient, lamports)
-        .await
-        .is_ok());
+    // Then approves the transfers.
+    assert!(tester.with_signature().approve().await.is_ok());
 }
 
 #[tokio::test]
-async fn create_transfer_without_signature() {
+async fn approve_without_signature() {
     let mut tester = Tester::new().await;
 
-    // Creates and funds the multisig account.
+    // Creates, funds, and creates transfers on the multisig account.
     tester.create().await;
     tester.fund().await;
+    tester.create_transfers().await;
 
-    let transfer = Keypair::new();
-    let recipient = Pubkey::new_unique();
-    let lamports = 10_000 * LAMPORTS_PER_SOL;
-    let err = tester
-        .create_transfer(&transfer, recipient, lamports)
-        .await
-        .err()
-        .unwrap();
+    let err = tester.approve().await.err().unwrap();
     assert_eq!(err.unwrap(), TransactionError::SignatureFailure);
 }
 
@@ -59,6 +51,13 @@ struct Tester {
     state_bump: u8,
     fund_pda: Pubkey,
     fund_bump: u8,
+    lamports: u64,
+    transfers: Vec<TestTransfer>,
+}
+
+struct TestTransfer {
+    transfer: Keypair,
+    recipient: Pubkey,
     lamports: u64,
 }
 
@@ -95,6 +94,16 @@ impl Tester {
         let (fund_pda, fund_bump) =
             Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
 
+        // Transfers.
+        let mut transfers = vec![];
+        (0..10).for_each(|i| {
+            transfers.push(TestTransfer {
+                transfer: Keypair::new(),
+                recipient: Pubkey::new_unique(),
+                lamports: i as u64 * LAMPORTS_PER_SOL,
+            })
+        });
+
         Self {
             program,
             client,
@@ -109,12 +118,37 @@ impl Tester {
             fund_pda,
             fund_bump,
             lamports: 100_000 * LAMPORTS_PER_SOL, // 100k SOL!? :)
+            transfers,
         }
     }
 
     fn with_signature(&mut self) -> &mut Self {
         self.with_signature = true;
         self
+    }
+
+    async fn get_state_account(&mut self) -> multisig_lite::State {
+        self.client
+            .get_account_with_commitment(self.state_pda, CommitmentLevel::Processed)
+            .await
+            .unwrap()
+            .map(|account| {
+                let mut data: &[u8] = &account.data;
+                multisig_lite::State::try_deserialize(&mut data).unwrap()
+            })
+            .unwrap()
+    }
+
+    async fn get_transfer_account(&mut self, key: Pubkey) -> multisig_lite::Transfer {
+        self.client
+            .get_account_with_commitment(key, CommitmentLevel::Processed)
+            .await
+            .unwrap()
+            .map(|account| {
+                let mut data: &[u8] = &account.data;
+                multisig_lite::Transfer::try_deserialize(&mut data).unwrap()
+            })
+            .unwrap()
     }
 
     async fn create(&mut self) {
@@ -165,33 +199,76 @@ impl Tester {
         self.client.process_transaction(tx).await.unwrap();
     }
 
-    async fn create_transfer(
-        &mut self,
-        transfer: &Keypair,
-        recipient: Pubkey,
-        lamports: u64,
-    ) -> Result<(), solana_program_test::BanksClientError> {
+    async fn create_transfers(&mut self) {
+        let mut signers = vec![self.funder.as_ref()];
+        let mut ixs = vec![];
+        self.transfers.iter().for_each(|transfer| {
+            signers.push(&transfer.transfer);
+            ixs.extend(
+                self.program
+                    .request()
+                    .accounts(multisig_lite::accounts::CreateTransfer {
+                        creator: self.funder.pubkey(),
+                        state: self.state_pda,
+                        fund: self.fund_pda,
+                        transfer: transfer.transfer.pubkey(),
+                        system_program: system_program::id(),
+                    })
+                    .args(multisig_lite::instruction::CreateTransfer {
+                        recipient: transfer.recipient,
+                        lamports: transfer.lamports,
+                        fund_bump: self.fund_bump,
+                    })
+                    .instructions()
+                    .unwrap(),
+            );
+        });
+
+        let mut tx = Transaction::new_with_payer(&ixs, Some(&self.funder.pubkey()));
+        tx.sign(&signers, self.recent_blockhash);
+        self.client.process_transaction(tx).await.unwrap();
+    }
+
+    async fn approve(&mut self) -> Result<(), solana_program_test::BanksClientError> {
+        // Gets the pending transfers and the recipients account info.
+        let mut remaining_accounts = vec![];
+        let state = self.get_state_account().await;
+        for transfer_pubkey in state.queue {
+            let transfer = self.get_transfer_account(transfer_pubkey).await;
+
+            // Pushes the transfer account.
+            remaining_accounts.push(AccountMeta {
+                pubkey: transfer_pubkey,
+                is_signer: false,
+                is_writable: true,
+            });
+
+            // Pushes the recipient account.
+            remaining_accounts.push(AccountMeta {
+                pubkey: transfer.recipient,
+                is_signer: false,
+                is_writable: true,
+            });
+        }
+
         let ixs = self
             .program
             .request()
-            .accounts(multisig_lite::accounts::CreateTransfer {
-                creator: self.funder.pubkey(),
+            .accounts(multisig_lite::accounts::Approve {
+                signer: self.funder.pubkey(),
                 state: self.state_pda,
                 fund: self.fund_pda,
-                transfer: transfer.pubkey(),
-                system_program: system_program::id(),
             })
-            .args(multisig_lite::instruction::CreateTransfer {
-                recipient,
-                lamports,
+            .args(multisig_lite::instruction::Approve {
                 fund_bump: self.fund_bump,
             })
+            .accounts(remaining_accounts)
             .instructions()
             .unwrap();
 
         let mut tx = Transaction::new_with_payer(&ixs, Some(&self.funder.pubkey()));
         if self.with_signature {
-            tx.sign(&[self.funder.as_ref(), transfer], self.recent_blockhash);
+            tx.sign(&[self.funder.as_ref()], self.recent_blockhash);
         }
         self.client.process_transaction(tx).await
     }
