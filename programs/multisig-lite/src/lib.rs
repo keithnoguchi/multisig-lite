@@ -622,6 +622,56 @@ pub mod multisig_lite {
     /// Funds lamports to the multisig account.
     ///
     /// The funding is only allowed by the multisig account funder.
+    ///
+    /// # Examples
+    ///
+    /// Here is how to fund to the multisig account on Devnet:
+    ///
+    /// ```no_run
+    /// use std::rc::Rc;
+    ///
+    /// use solana_sdk::commitment_config::CommitmentConfig;
+    /// use solana_sdk::pubkey::Pubkey;
+    /// use solana_sdk::native_token::LAMPORTS_PER_SOL;
+    /// use solana_sdk::signature::read_keypair_file;
+    /// use solana_sdk::signer::Signer;
+    /// use solana_sdk::system_program;
+    ///
+    /// use anchor_client::{Client, Cluster};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
+    /// let funder = Rc::new(read_keypair_file(
+    ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    /// )?);
+    /// let opts = CommitmentConfig::processed();
+    /// let pid = multisig_lite::id();
+    /// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+    ///
+    /// // Gets the PDAs.
+    /// let (state_pda, state_bump) =
+    ///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    /// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+    ///
+    /// // Funds the multisig account.
+    /// let sig = program
+    ///     .request()
+    ///     .accounts(multisig_lite::accounts::Fund {
+    ///         funder: funder.pubkey(),
+    ///         state: state_pda,
+    ///         fund: fund_pda,
+    ///         system_program: system_program::id(),
+    ///     })
+    ///     .args(multisig_lite::instruction::Fund {
+    ///         lamports: 1_000_000 * LAMPORTS_PER_SOL, // 1M SOL!? :)
+    ///         _state_bump,
+    ///         fund_bump,
+    ///     })
+    ///     .signer(funder.as_ref())
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn fund(ctx: Context<Fund>, lamports: u64, _state_bump: u8, fund_bump: u8) -> Result<()> {
         let funder = &ctx.accounts.funder;
