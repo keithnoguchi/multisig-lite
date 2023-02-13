@@ -38,7 +38,7 @@ async fn fund_without_signature() {
     // Creates a multisig account.
     tester.create().await;
 
-    let err = tester.fund(1 * LAMPORTS_PER_SOL).await.err().unwrap();
+    let err = tester.fund(2 * LAMPORTS_PER_SOL).await.err().unwrap();
     assert_eq!(err.unwrap(), TransactionError::SignatureFailure);
 }
 
