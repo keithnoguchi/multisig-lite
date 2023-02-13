@@ -380,7 +380,7 @@ pub struct Close<'info> {
 pub mod multisig_lite {
     use super::*;
 
-    /// Creates the multisig account.
+    /// Creates a multisig account.
     ///
     /// It's restricted one multisig account to each funder Pubkey,
     /// as it's used for the multisig PDA address generation.
@@ -401,10 +401,10 @@ pub mod multisig_lite {
     /// use anchor_client::{Client, Cluster};
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
     /// let funder = Rc::new(read_keypair_file(
     ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
     /// )?);
-    /// let url = Cluster::Devnet;
     /// let opts = CommitmentConfig::processed();
     /// let pid = multisig_lite::id();
     /// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
@@ -642,10 +642,69 @@ pub mod multisig_lite {
         Ok(())
     }
 
-    /// Closes a multisig account.
+    /// Closes the multisig account.
     ///
-    /// It cleans up all the remaining accounts and return back to the
-    /// funder.
+    /// It cleans up all the remaining accounts and return those rents
+    /// back to the funder, original creator of the multisig account.
+    ///
+    /// # Examples
+    ///
+    /// Here is how you close the multisig account on devnet:
+    ///
+    /// ```no_run
+    /// use std::rc::Rc;
+    ///
+    /// use solana_sdk::commitment_config::CommitmentConfig;
+    /// use solana_sdk::instruction::AccountMeta;
+    /// use solana_sdk::pubkey::Pubkey;
+    /// use solana_sdk::signature::read_keypair_file;
+    /// use solana_sdk::signer::Signer;
+    ///
+    /// use anchor_client::{Client, Cluster};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
+    /// let funder = Rc::new(read_keypair_file(
+    ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    /// )?);
+    /// let opts = CommitmentConfig::processed();
+    /// let pid = multisig_lite::id();
+    /// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+    ///
+    /// // Gets the PDAs.
+    /// let (state_pda, state_bump) =
+    ///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    /// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+    ///
+    /// // Gets the remaining transfers to collects the rents.
+    /// let state: multisig_lite::State = program.account(state_pda)?;
+    /// let remaining_accounts: Vec<_> = state
+    ///     .queue
+    ///     .into_iter()
+    ///     .map(|pubkey| AccountMeta {
+    ///         pubkey,
+    ///         is_signer: false,
+    ///         is_writable: true,
+    ///     })
+    ///     .collect();
+    ///
+    /// // close the multisig account.
+    /// let sig = program
+    ///     .request()
+    ///     .accounts(multisig_lite::accounts::Close {
+    ///         funder: funder.pubkey(),
+    ///         state: state_pda,
+    ///         fund: fund_pda,
+    ///     })
+    ///     .args(multisig_lite::instruction::Close {
+    ///         _state_bump: state_bump,
+    ///         fund_bump,
+    ///     })
+    ///     .signer(funder.as_ref())
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn close(ctx: Context<Close>, _state_bump: u8, fund_bump: u8) -> Result<()> {
         let funder = &mut ctx.accounts.funder;
