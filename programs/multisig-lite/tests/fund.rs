@@ -24,7 +24,11 @@ async fn fund() {
     assert!(tester.get_fund_account().await.is_some());
 
     // Then fund it.
-    assert!(tester.with_signature().fund(10 * LAMPORTS_PER_SOL).await.is_ok());
+    assert!(tester
+        .with_signature()
+        .fund(10 * LAMPORTS_PER_SOL)
+        .await
+        .is_ok());
 }
 
 #[tokio::test]

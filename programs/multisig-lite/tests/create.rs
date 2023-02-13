@@ -54,12 +54,7 @@ async fn create_with_zero_threshold() {
 
 #[tokio::test]
 async fn create_without_signature() {
-    let err = Tester::new()
-        .await
-        .create()
-        .await
-        .err()
-        .unwrap();
+    let err = Tester::new().await.create().await.err().unwrap();
 
     assert_eq!(err.unwrap(), TransactionError::SignatureFailure);
 }

@@ -1,6 +1,60 @@
 //! A native [SOL] multisig on-chain program.
 //!
 //! [sol]: https://solana.com/
+//!
+//! # Examples
+//!
+//! Here is how to create a new multisig account on-chain.
+//!
+//! Please refer to the [`multisig_lite`] module level
+//! documentation for the other instructions' examples.
+//!
+//! ```no_run
+//! use std::rc::Rc;
+//!
+//! use solana_sdk::commitment_config::CommitmentConfig;
+//! use solana_sdk::pubkey::Pubkey;
+//! use solana_sdk::signature::read_keypair_file;
+//! use solana_sdk::signer::Signer;
+//! use solana_sdk::system_program;
+//!
+//! use anchor_client::{Client, Cluster};
+//!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let url = Cluster::Devnet;
+//! let funder = Rc::new(read_keypair_file(
+//!     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+//! )?);
+//! let opts = CommitmentConfig::processed();
+//! let pid = multisig_lite::id();
+//! let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+//!
+//! // Gets the PDAs.
+//! let (state_pda, state_bump) =
+//!     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+//! let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+//!
+//! // Creates a multisig account.
+//! let sig = program
+//!     .request()
+//!     .accounts(multisig_lite::accounts::Create {
+//!         funder: funder.pubkey(),
+//!         state: state_pda,
+//!         fund: fund_pda,
+//!         system_program: system_program::id(),
+//!     })
+//!     .args(multisig_lite::instruction::Create {
+//!         m: 2, // m as in m/n.
+//!         signers: vec![funder.pubkey(), Pubkey::new_unique(), Pubkey::new_unique()],
+//!         q: 10, // transfer queue limit.
+//!         _state_bump: state_bump,
+//!         fund_bump,
+//!     })
+//!     .signer(funder.as_ref())
+//!     .send()?;
+//! # Ok(())
+//! # }
+//! ```
 
 use std::collections::{HashMap, HashSet};
 use std::ops::DerefMut;
@@ -71,6 +125,42 @@ pub enum Error {
 }
 
 /// A multisig [`State`] PDA account data.
+///
+/// # Examples
+///
+/// Here is how to query the [`State`] PDA account on Devnet.
+///
+/// ```no_run
+/// use std::rc::Rc;
+///
+/// use solana_sdk::commitment_config::CommitmentConfig;
+/// use solana_sdk::pubkey::Pubkey;
+/// use solana_sdk::signature::read_keypair_file;
+/// use solana_sdk::signer::Signer;
+///
+/// use anchor_client::{Client, Cluster};
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let url = Cluster::Devnet;
+/// let funder = Rc::new(read_keypair_file(
+///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+/// )?);
+/// let opts = CommitmentConfig::processed();
+/// let pid = multisig_lite::id();
+/// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+///
+/// // Gets the PDAs.
+/// let (state_pda, _state_bump) =
+///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+///
+/// // Query the `multisig_lite::State` account.
+/// let state: multisig_lite::State = program.account(state_pda)?;
+///
+/// // Print out the state account.
+/// println!("{state:?}");
+/// # Ok(())
+/// # }
+/// ```
 #[account]
 #[derive(Debug)]
 pub struct State {
@@ -249,6 +339,8 @@ impl Transfer {
 }
 
 /// Accounts for the [`multisig_lite::create`] instruction handler.
+///
+/// Please refer to the [`multisig_lite::create`] document for the example.
 #[derive(Accounts)]
 #[instruction(m: u8, signers: Vec<Pubkey>, q: u8, state_bump: u8, fund_bump: u8)]
 pub struct Create<'info> {
@@ -277,6 +369,8 @@ pub struct Create<'info> {
 }
 
 /// Accounts for the [`multisig_lite::fund`] instruction handler.
+///
+/// Please refer to the [`multisig_lite::fund`] document for the example.
 #[derive(Accounts)]
 #[instruction(lamports: u64, state_bump: u8, fund_bump: u8)]
 pub struct Fund<'info> {
@@ -301,6 +395,8 @@ pub struct Fund<'info> {
 }
 
 /// Accounts for the [`multisig_lite::create_transfer`] instruction handler.
+///
+/// Please refer to the [`multisig_lite::create_transfer`] document for the example.
 #[derive(Accounts)]
 #[instruction(recipient: Pubkey, lamports: u64, fund_bump: u8)]
 pub struct CreateTransfer<'info> {
@@ -338,6 +434,8 @@ pub struct CreateTransfer<'info> {
 ///
 /// In case of the 1 above, the account will be unlocked
 /// and starts to take a new transfer again.
+///
+/// Please refer to the [`multisig_lite::approve`] document for the example.
 #[derive(Accounts)]
 #[instruction(fund_bump: u8)]
 pub struct Approve<'info> {
@@ -357,6 +455,8 @@ pub struct Approve<'info> {
 }
 
 /// Accounts for the [`multisig_lite::close`] instruction handler.
+///
+/// Please refer to the [`multisig_lite::close`] document for the example.
 #[derive(Accounts)]
 #[instruction(state_bump: u8, fund_bump: u8)]
 pub struct Close<'info> {
@@ -387,7 +487,7 @@ pub mod multisig_lite {
     ///
     /// # Examples
     ///
-    /// Here is how you create a multisig account on devnet:
+    /// Here is how you create a multisig account on Devnet:
     ///
     /// ```no_run
     /// use std::rc::Rc;
@@ -426,7 +526,7 @@ pub mod multisig_lite {
     ///     .args(multisig_lite::instruction::Create {
     ///         m: 2, // m as in m/n.
     ///         signers: vec![funder.pubkey(), Pubkey::new_unique(), Pubkey::new_unique()],
-    ///         q: 10, // queue limit.
+    ///         q: 10, // transfer queue limit.
     ///         _state_bump: state_bump,
     ///         fund_bump,
     ///     })
