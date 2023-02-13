@@ -7,7 +7,7 @@
 //! Here is how to create a new multisig account on-chain.
 //!
 //! Please refer to the [`multisig_lite`] module level
-//! documentation for the other instructions' examples.
+//! documentation for the other instructions' example.
 //!
 //! ```no_run
 //! use std::rc::Rc;
