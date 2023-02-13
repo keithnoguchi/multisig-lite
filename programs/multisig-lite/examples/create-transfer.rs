@@ -67,7 +67,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // ledger.
     let transfer = Keypair::new();
 
-    // Funds the multisig account.
+    // Creates a pending transfer.
     let sig = program
         .request()
         .accounts(multisig_lite::accounts::CreateTransfer {

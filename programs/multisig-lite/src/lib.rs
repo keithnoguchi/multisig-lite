@@ -52,6 +52,8 @@
 //!     })
 //!     .signer(funder.as_ref())
 //!     .send()?;
+//!
+//! println!("{sig}");
 //! # Ok(())
 //! # }
 //! ```
@@ -571,6 +573,8 @@ pub mod multisig_lite {
     ///     })
     ///     .signer(funder.as_ref())
     ///     .send()?;
+    ///
+    /// println!("{sig}");
     /// # Ok(())
     /// # }
     /// ```
@@ -669,6 +673,8 @@ pub mod multisig_lite {
     ///     })
     ///     .signer(funder.as_ref())
     ///     .send()?;
+    ///
+    /// println!("{sig}");
     /// # Ok(())
     /// # }
     /// ```
@@ -696,6 +702,67 @@ pub mod multisig_lite {
     ///
     /// Transfer account creation fee will be given back to the
     /// creator of the transfer from the multisig fund.
+    ///
+    /// # Examples
+    ///
+    /// Here is how to create a pending transfer on Devnet:
+    ///
+    /// ```no_run
+    /// use std::rc::Rc;
+    ///
+    /// use solana_sdk::commitment_config::CommitmentConfig;
+    /// use solana_sdk::native_token::LAMPORTS_PER_SOL;
+    /// use solana_sdk::pubkey::Pubkey;
+    /// use solana_sdk::signature::read_keypair_file;
+    /// use solana_sdk::signer::{keypair::Keypair, Signer};
+    /// use solana_sdk::system_program;
+    ///
+    /// use anchor_client::{Client, Cluster};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
+    /// let funder = Rc::new(read_keypair_file(
+    ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    /// )?);
+    /// let opts = CommitmentConfig::processed();
+    /// let pid = multisig_lite::id();
+    /// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+    ///
+    /// // Gets the PDAs.
+    /// let (state_pda, state_bump) =
+    ///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    /// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+    ///
+    /// // Temporary transfer keypair.
+    /// //
+    /// // This is only required for the transaction signature and
+    /// // won't be required once the transaction is recorded on the
+    /// // ledger.
+    /// let transfer = Keypair::new();
+    ///
+    /// // Creates a pending transfer.
+    /// let sig = program
+    ///     .request()
+    ///     .accounts(multisig_lite::accounts::CreateTransfer {
+    ///         creator: funder.pubkey(),
+    ///         state: state_pda,
+    ///         fund: fund_pda,
+    ///         transfer: transfer.pubkey(),
+    ///         system_program: system_program::id(),
+    ///     })
+    ///     .args(multisig_lite::instruction::CreateTransfer {
+    ///         recipient: Pubkey::new_unique(),
+    ///         lamports: 1_000_000 * LAMPORTS_PER_SOL, // 1M SOL!? :)
+    ///         fund_bump,
+    ///     })
+    ///     .signer(funder.as_ref())
+    ///     .signer(&transfer)
+    ///     .send()?;
+    ///
+    /// println!("{sig}");
+    /// # Ok(())
+    /// # }
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn create_transfer(
         ctx: Context<CreateTransfer>,
@@ -891,6 +958,8 @@ pub mod multisig_lite {
     ///     })
     ///     .signer(funder.as_ref())
     ///     .send()?;
+    ///
+    /// println!("{sig}");
     /// # Ok(())
     /// # }
     /// ```

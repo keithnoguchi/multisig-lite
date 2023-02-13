@@ -25,8 +25,6 @@ Currently, there are five instructions to provide the queued multisig transfer o
 4. [`approve`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.approve.html)
 5. [`close`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.close.html)
 
-Please refer to the [Rust doc] and [TypeScript test] for more detail.
-
 # Examples
 
 [`multisig_lite::multisig_lite`]: https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/
