@@ -71,8 +71,33 @@ jobs:
       - name: Run cargo build-sbf
         run: cargo build-sbf --workspace
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Run cargo test
+        run: |
+          cargo test --all-features --all-targets --bins --examples
+
+  test-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Run cargo test --doc
+        run: cargo test --doc
+
   test-sbf:
     runs-on: ubuntu-latest
+    # It fails on github action with ProgramEnvironmentSetupFailure as in [1].
+    #
+    # [1]: https://github.com/keithnoguchi/multisig-lite/actions/runs/4159866695/jobs/7196318696
+    if: ${{ false }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3

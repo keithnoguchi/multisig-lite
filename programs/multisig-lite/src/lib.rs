@@ -664,7 +664,7 @@ pub mod multisig_lite {
     ///     })
     ///     .args(multisig_lite::instruction::Fund {
     ///         lamports: 1_000_000 * LAMPORTS_PER_SOL, // 1M SOL!? :)
-    ///         _state_bump,
+    ///         _state_bump: state_bump,
     ///         fund_bump,
     ///     })
     ///     .signer(funder.as_ref())
