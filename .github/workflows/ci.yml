@@ -52,7 +52,28 @@ jobs:
         run: rustup update stable
       - name: Run cargo check
         run: |
-          cargo check --all-features --all-targets --bins --examples
+          cargo check -q --all-features --all-targets --bins --examples
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Run cargo test
+        run: |
+          cargo test --all-features --all-targets --bins --examples 2>/dev/null
+
+  test-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install Rust
+        run: rustup update stable
+      - name: Run cargo test --doc
+        run: cargo test --doc 2>/dev/null
 
   build-sbf:
     runs-on: ubuntu-latest
@@ -73,9 +94,9 @@ jobs:
 
   test-sbf:
     runs-on: ubuntu-latest
-    # It fails on github action with InvalidAccountData as in [1].
+    # It fails on github action with ProgramEnvironmentSetupFailure as in [1].
     #
-    # [1] https://github.com/keithnoguchi/multisig-lite/actions/runs/4150237923/jobs/7179755757
+    # [1]: https://github.com/keithnoguchi/multisig-lite/actions/runs/4159866695/jobs/7196318696
     if: ${{ false }}
     steps:
       - name: Check out the repository
@@ -89,8 +110,14 @@ jobs:
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
+      # This cargo build-spf and then cargo build-bpf is required to avoid
+      # the InvalidAccountData error.
+      - name: Run cargo build-sbf
+        run: cargo build-sbf
+      - name: Run cargo build-bpf
+        run: cargo build-bpf -q
       - name: Run cargo test-sbf
-        run: cargo test-sbf --workspace
+        run: cargo test-sbf -q --workspace
 
   run-examples:
     runs-on: ubuntu-latest
@@ -118,23 +145,23 @@ jobs:
         run: |
           solana program deploy --program-id $PROGRAM_KEYPAIR ./target/deploy/multisig_lite.so
       - name: Run create example
-        run: cargo run --features localnet --example create -- -m 1
+        run: cargo run -q --features localnet --example create -- -m 1
       - name: Run fund example
-        run: cargo run --features localnet --example fund -- --lamports 1000000000
+        run: cargo run -q --features localnet --example fund -- --lamports 1000000000
       - name: Run get-fund example
-        run: cargo run --features localnet --example get-fund
+        run: cargo run -q --features localnet --example get-fund
       - name: Run create-transfer example
-        run: cargo run --features localnet --example create-transfer
+        run: cargo run -q --features localnet --example create-transfer
       - name: Run get-transfers example
-        run: cargo run --features localnet --example get-transfers
+        run: cargo run -q --features localnet --example get-transfers
       - name: Run get-state example
-        run: cargo run --features localnet --example get-state
+        run: cargo run -q --features localnet --example get-state
       - name: Run approve example
-        run: cargo run --features localnet --example approve
+        run: cargo run -q --features localnet --example approve
       - name: Run get-state example
-        run: cargo run --features localnet --example get-state
+        run: cargo run -q --features localnet --example get-state
       - name: Run close example
-        run: cargo run --features localnet --example close
+        run: cargo run -q --features localnet --example close
 
   anchor-build:
     runs-on: ubuntu-latest
@@ -169,8 +196,8 @@ jobs:
         run: |
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
-      - name: Install JavaScript packages
-        run: yarn install
+      - name: Install JS/TS modules
+        run: yarn
       - name: Install Anchor-cli
         run: cargo install anchor-cli
       - name: Create a default signer

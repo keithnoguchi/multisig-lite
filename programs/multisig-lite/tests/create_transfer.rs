@@ -1,61 +1,48 @@
-//! `multisig_list::multisig_list::create` instruction tests.
+//! `multisig_list::multisig_list::create_transfer` instruction tests.
 
-use solana_sdk::account::Account;
-use solana_sdk::commitment_config::CommitmentLevel;
 use solana_sdk::hash::Hash;
-use solana_sdk::instruction::InstructionError;
+use solana_sdk::native_token::LAMPORTS_PER_SOL;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
 use solana_sdk::signer::Signer;
 use solana_sdk::system_program;
 use solana_sdk::transaction::{Transaction, TransactionError};
 
-use anchor_client::anchor_lang::AccountDeserialize;
-
 #[tokio::test]
-async fn create() {
+async fn create_transfer() {
     let mut tester = Tester::new().await;
-    tester.with_signature().create().await.unwrap();
 
-    // State account.
-    let state = tester.get_state_account().await;
-    assert_eq!(state.m, 3);
-    assert_eq!(state.signers.len(), 5);
-    assert_eq!(state.signed.len(), 5);
-    state.signed.iter().for_each(|signed| assert!(!*signed));
-    assert_eq!(state.fund, tester.fund_pda);
-    assert_eq!(state.balance, 0);
-    assert_eq!(state.q, 10);
-    assert_eq!(state.queue.len(), 0);
+    // Creates and funds the  multisig account.
+    tester.create().await;
+    tester.fund().await;
 
-    // Fund account.
-    let fund = tester.get_fund_account().await;
-    assert_eq!(fund.data.len(), 0);
-    assert_eq!(fund.owner, tester.program.id());
-    assert!(!fund.executable);
+    // Then creates a transfer.
+    let transfer = Keypair::new();
+    let recipient = Pubkey::new_unique();
+    let lamports = 2_000 * LAMPORTS_PER_SOL;
+    assert!(tester
+        .with_signature()
+        .create_transfer(&transfer, recipient, lamports)
+        .await
+        .is_ok());
 }
 
 #[tokio::test]
-async fn create_with_zero_threshold() {
-    let err = Tester::new()
-        .await
-        .with_m(0)
-        .with_signature()
-        .create()
+async fn create_transfer_without_signature() {
+    let mut tester = Tester::new().await;
+
+    // Creates and funds the multisig account.
+    tester.create().await;
+    tester.fund().await;
+
+    let transfer = Keypair::new();
+    let recipient = Pubkey::new_unique();
+    let lamports = 10_000 * LAMPORTS_PER_SOL;
+    let err = tester
+        .create_transfer(&transfer, recipient, lamports)
         .await
         .err()
         .unwrap();
-
-    assert_eq!(
-        err.unwrap(),
-        TransactionError::InstructionError(0, InstructionError::Custom(6008)),
-    );
-}
-
-#[tokio::test]
-async fn create_without_signature() {
-    let err = Tester::new().await.create().await.err().unwrap();
-
     assert_eq!(err.unwrap(), TransactionError::SignatureFailure);
 }
 
@@ -72,6 +59,7 @@ struct Tester {
     state_bump: u8,
     fund_pda: Pubkey,
     fund_bump: u8,
+    lamports: u64,
 }
 
 impl Tester {
@@ -120,12 +108,8 @@ impl Tester {
             state_bump,
             fund_pda,
             fund_bump,
+            lamports: 100_000 * LAMPORTS_PER_SOL, // 100k SOL!? :)
         }
-    }
-
-    fn with_m(&mut self, m: u8) -> &mut Self {
-        self.m = m;
-        self
     }
 
     fn with_signature(&mut self) -> &mut Self {
@@ -133,27 +117,7 @@ impl Tester {
         self
     }
 
-    async fn get_state_account(&mut self) -> multisig_lite::State {
-        self.client
-            .get_account_with_commitment(self.state_pda, CommitmentLevel::Processed)
-            .await
-            .unwrap()
-            .map(|account| {
-                let mut data: &[u8] = &account.data;
-                multisig_lite::State::try_deserialize(&mut data).unwrap()
-            })
-            .unwrap()
-    }
-
-    async fn get_fund_account(&mut self) -> Account {
-        self.client
-            .get_account(self.fund_pda)
-            .await
-            .unwrap()
-            .unwrap()
-    }
-
-    async fn create(&mut self) -> Result<(), solana_program_test::BanksClientError> {
+    async fn create(&mut self) {
         let ixs = self
             .program
             .request()
@@ -174,8 +138,60 @@ impl Tester {
             .unwrap();
 
         let mut tx = Transaction::new_with_payer(&ixs, Some(&self.funder.pubkey()));
+        tx.sign(&[self.funder.as_ref()], self.recent_blockhash);
+        self.client.process_transaction(tx).await.unwrap();
+    }
+
+    async fn fund(&mut self) {
+        let ixs = self
+            .program
+            .request()
+            .accounts(multisig_lite::accounts::Fund {
+                funder: self.funder.pubkey(),
+                state: self.state_pda,
+                fund: self.fund_pda,
+                system_program: system_program::id(),
+            })
+            .args(multisig_lite::instruction::Fund {
+                lamports: self.lamports,
+                _state_bump: self.state_bump,
+                fund_bump: self.fund_bump,
+            })
+            .instructions()
+            .unwrap();
+
+        let mut tx = Transaction::new_with_payer(&ixs, Some(&self.funder.pubkey()));
+        tx.sign(&[self.funder.as_ref()], self.recent_blockhash);
+        self.client.process_transaction(tx).await.unwrap();
+    }
+
+    async fn create_transfer(
+        &mut self,
+        transfer: &Keypair,
+        recipient: Pubkey,
+        lamports: u64,
+    ) -> Result<(), solana_program_test::BanksClientError> {
+        let ixs = self
+            .program
+            .request()
+            .accounts(multisig_lite::accounts::CreateTransfer {
+                creator: self.funder.pubkey(),
+                state: self.state_pda,
+                fund: self.fund_pda,
+                transfer: transfer.pubkey(),
+                system_program: system_program::id(),
+            })
+            .args(multisig_lite::instruction::CreateTransfer {
+                recipient,
+                lamports,
+                fund_bump: self.fund_bump,
+            })
+            .instructions()
+            .unwrap();
+
+        let mut tx = Transaction::new_with_payer(&ixs, Some(&self.funder.pubkey()));
         if self.with_signature {
-            tx.sign(&[self.funder.as_ref()], self.recent_blockhash);
+            tx.sign(&[self.funder.as_ref(), transfer], self.recent_blockhash);
         }
         self.client.process_transaction(tx).await
     }

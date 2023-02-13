@@ -1,6 +1,62 @@
 //! A native [SOL] multisig on-chain program.
 //!
 //! [sol]: https://solana.com/
+//!
+//! # Examples
+//!
+//! Here is how to create a new multisig account on-chain.
+//!
+//! Please refer to the [`multisig_lite`] module level
+//! documentation for the other instructions' example.
+//!
+//! ```no_run
+//! use std::rc::Rc;
+//!
+//! use solana_sdk::commitment_config::CommitmentConfig;
+//! use solana_sdk::pubkey::Pubkey;
+//! use solana_sdk::signature::read_keypair_file;
+//! use solana_sdk::signer::Signer;
+//! use solana_sdk::system_program;
+//!
+//! use anchor_client::{Client, Cluster};
+//!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let url = Cluster::Devnet;
+//! let funder = Rc::new(read_keypair_file(
+//!     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+//! )?);
+//! let opts = CommitmentConfig::processed();
+//! let pid = multisig_lite::id();
+//! let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+//!
+//! // Gets the PDAs.
+//! let (state_pda, state_bump) =
+//!     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+//! let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+//!
+//! // Creates a multisig account.
+//! let sig = program
+//!     .request()
+//!     .accounts(multisig_lite::accounts::Create {
+//!         funder: funder.pubkey(),
+//!         state: state_pda,
+//!         fund: fund_pda,
+//!         system_program: system_program::id(),
+//!     })
+//!     .args(multisig_lite::instruction::Create {
+//!         m: 2, // m as in m/n.
+//!         signers: vec![funder.pubkey(), Pubkey::new_unique(), Pubkey::new_unique()],
+//!         q: 10, // transfer queue limit.
+//!         _state_bump: state_bump,
+//!         fund_bump,
+//!     })
+//!     .signer(funder.as_ref())
+//!     .send()?;
+//!
+//! println!("{sig}");
+//! # Ok(())
+//! # }
+//! ```
 
 use std::collections::{HashMap, HashSet};
 use std::ops::DerefMut;
@@ -71,6 +127,42 @@ pub enum Error {
 }
 
 /// A multisig [`State`] PDA account data.
+///
+/// # Examples
+///
+/// Here is how to query the [`State`] PDA account on Devnet.
+///
+/// ```no_run
+/// use std::rc::Rc;
+///
+/// use solana_sdk::commitment_config::CommitmentConfig;
+/// use solana_sdk::pubkey::Pubkey;
+/// use solana_sdk::signature::read_keypair_file;
+/// use solana_sdk::signer::Signer;
+///
+/// use anchor_client::{Client, Cluster};
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let url = Cluster::Devnet;
+/// let funder = Rc::new(read_keypair_file(
+///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+/// )?);
+/// let opts = CommitmentConfig::processed();
+/// let pid = multisig_lite::id();
+/// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+///
+/// // Gets the PDAs.
+/// let (state_pda, _state_bump) =
+///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+///
+/// // Query the `multisig_lite::State` account.
+/// let state: multisig_lite::State = program.account(state_pda)?;
+///
+/// // Print out the state account.
+/// println!("{state:?}");
+/// # Ok(())
+/// # }
+/// ```
 #[account]
 #[derive(Debug)]
 pub struct State {
@@ -230,6 +322,45 @@ impl State {
 }
 
 /// A multisig [`Transfer`] account data.
+///
+/// # Examples
+///
+/// Here is how to query the [`Transfer`] PDA account on Devnet.
+///
+/// ```no_run
+/// use std::rc::Rc;
+///
+/// use solana_sdk::commitment_config::CommitmentConfig;
+/// use solana_sdk::pubkey::Pubkey;
+/// use solana_sdk::signature::read_keypair_file;
+/// use solana_sdk::signer::Signer;
+///
+/// use anchor_client::{Client, Cluster};
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let url = Cluster::Devnet;
+/// let funder = Rc::new(read_keypair_file(
+///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+/// )?);
+/// let opts = CommitmentConfig::processed();
+/// let pid = multisig_lite::id();
+/// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+///
+/// // Gets the PDAs.
+/// let (state_pda, _state_bump) =
+///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+///
+/// // Query the `multisig_lite::State` account to get the queued transfers.
+/// let state: multisig_lite::State = program.account(state_pda)?;
+///
+/// // Query the `multisig_lite::Transfer` accounts iteratively.
+/// for transfer in state.queue {
+///     let transfer: multisig_lite::Transfer = program.account(transfer)?;
+///     println!("{transfer:?}");
+/// }
+/// # Ok(())
+/// # }
+/// ```
 #[account]
 #[derive(Debug)]
 pub struct Transfer {
@@ -249,6 +380,8 @@ impl Transfer {
 }
 
 /// Accounts for the [`multisig_lite::create`] instruction handler.
+///
+/// Please refer to the [`multisig_lite::create`] document for the example.
 #[derive(Accounts)]
 #[instruction(m: u8, signers: Vec<Pubkey>, q: u8, state_bump: u8, fund_bump: u8)]
 pub struct Create<'info> {
@@ -277,6 +410,8 @@ pub struct Create<'info> {
 }
 
 /// Accounts for the [`multisig_lite::fund`] instruction handler.
+///
+/// Please refer to the [`multisig_lite::fund`] document for the example.
 #[derive(Accounts)]
 #[instruction(lamports: u64, state_bump: u8, fund_bump: u8)]
 pub struct Fund<'info> {
@@ -301,6 +436,8 @@ pub struct Fund<'info> {
 }
 
 /// Accounts for the [`multisig_lite::create_transfer`] instruction handler.
+///
+/// Please refer to the [`multisig_lite::create_transfer`] document for the example.
 #[derive(Accounts)]
 #[instruction(recipient: Pubkey, lamports: u64, fund_bump: u8)]
 pub struct CreateTransfer<'info> {
@@ -338,6 +475,8 @@ pub struct CreateTransfer<'info> {
 ///
 /// In case of the 1 above, the account will be unlocked
 /// and starts to take a new transfer again.
+///
+/// Please refer to the [`multisig_lite::approve`] document for the example.
 #[derive(Accounts)]
 #[instruction(fund_bump: u8)]
 pub struct Approve<'info> {
@@ -357,6 +496,8 @@ pub struct Approve<'info> {
 }
 
 /// Accounts for the [`multisig_lite::close`] instruction handler.
+///
+/// Please refer to the [`multisig_lite::close`] document for the example.
 #[derive(Accounts)]
 #[instruction(state_bump: u8, fund_bump: u8)]
 pub struct Close<'info> {
@@ -376,14 +517,139 @@ pub struct Close<'info> {
 }
 
 /// Module representing the program instruction handlers.
+///
+/// # Examples
+///
+/// Here is how to approve pending transfers on Devnet.
+///
+/// Please take a look at the individual functions for other
+/// instruction opperations. e.g. [`multisig_lite::fund`] for
+/// how to fund the multisig account.
+///
+/// ```no_run
+/// use std::rc::Rc;
+///
+/// use solana_sdk::commitment_config::CommitmentConfig;
+/// use solana_sdk::instruction::AccountMeta;
+/// use solana_sdk::pubkey::Pubkey;
+/// use solana_sdk::signature::read_keypair_file;
+/// use solana_sdk::signer::Signer;
+///
+/// use anchor_client::{Client, Cluster};
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let url = Cluster::Devnet;
+/// let signer = Rc::new(read_keypair_file(
+///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+/// )?);
+/// let opts = CommitmentConfig::processed();
+/// let pid = multisig_lite::id();
+/// let program = Client::new_with_options(url, signer.clone(), opts).program(pid);
+///
+/// // Gets the PDAs.
+/// let (state_pda, state_bump) =
+///     Pubkey::find_program_address(&[b"state", signer.pubkey().as_ref()], &pid);
+/// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+///
+/// // Gets the pending transfers and the recipients account info.
+/// let mut remaining_accounts = vec![];
+/// let state: multisig_lite::State = program.account(state_pda)?;
+/// for transfer_pubkey in state.queue {
+///     let transfer: multisig_lite::Transfer = program.account(transfer_pubkey)?;
+///
+///     // Pushes the transfer account.
+///     remaining_accounts.push(AccountMeta {
+///         pubkey: transfer_pubkey,
+///         is_signer: false,
+///         is_writable: true,
+///     });
+///
+///     // Pushes the recipient account.
+///     remaining_accounts.push(AccountMeta {
+///         pubkey: transfer.recipient,
+///         is_signer: false,
+///         is_writable: true,
+///     });
+/// }
+///
+/// // Approve the multisig account.
+/// let sig = program
+///     .request()
+///     .accounts(multisig_lite::accounts::Approve {
+///         signer: signer.pubkey(),
+///         state: state_pda,
+///         fund: fund_pda,
+///     })
+///     .args(multisig_lite::instruction::Approve { fund_bump })
+///     .accounts(remaining_accounts)
+///     .signer(signer.as_ref())
+///     .send()?;
+///
+/// println!("{sig}");
+/// # Ok(())
+/// # }
+/// ```
 #[program]
 pub mod multisig_lite {
     use super::*;
 
-    /// Creates the multisig account.
+    /// Creates a multisig account.
     ///
     /// It's restricted one multisig account to each funder Pubkey,
     /// as it's used for the multisig PDA address generation.
+    ///
+    /// # Examples
+    ///
+    /// Here is how you create a multisig account on Devnet:
+    ///
+    /// ```no_run
+    /// use std::rc::Rc;
+    ///
+    /// use solana_sdk::commitment_config::CommitmentConfig;
+    /// use solana_sdk::pubkey::Pubkey;
+    /// use solana_sdk::signature::read_keypair_file;
+    /// use solana_sdk::signer::Signer;
+    /// use solana_sdk::system_program;
+    ///
+    /// use anchor_client::{Client, Cluster};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
+    /// let funder = Rc::new(read_keypair_file(
+    ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    /// )?);
+    /// let opts = CommitmentConfig::processed();
+    /// let pid = multisig_lite::id();
+    /// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+    ///
+    /// // Gets the PDAs.
+    /// let (state_pda, state_bump) =
+    ///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    /// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+    ///
+    /// // Creates a multisig account.
+    /// let sig = program
+    ///     .request()
+    ///     .accounts(multisig_lite::accounts::Create {
+    ///         funder: funder.pubkey(),
+    ///         state: state_pda,
+    ///         fund: fund_pda,
+    ///         system_program: system_program::id(),
+    ///     })
+    ///     .args(multisig_lite::instruction::Create {
+    ///         m: 2, // m as in m/n.
+    ///         signers: vec![funder.pubkey(), Pubkey::new_unique(), Pubkey::new_unique()],
+    ///         q: 10, // transfer queue limit.
+    ///         _state_bump: state_bump,
+    ///         fund_bump,
+    ///     })
+    ///     .signer(funder.as_ref())
+    ///     .send()?;
+    ///
+    /// println!("{sig}");
+    /// # Ok(())
+    /// # }
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn create(
         ctx: Context<Create>,
@@ -429,9 +695,61 @@ pub mod multisig_lite {
         Ok(())
     }
 
-    /// Funds lamports to the multisig account.
+    /// Funds lamports to the multisig fund account.
     ///
     /// The funding is only allowed by the multisig account funder.
+    ///
+    /// # Examples
+    ///
+    /// Here is how to fund to the multisig account on Devnet:
+    ///
+    /// ```no_run
+    /// use std::rc::Rc;
+    ///
+    /// use solana_sdk::commitment_config::CommitmentConfig;
+    /// use solana_sdk::pubkey::Pubkey;
+    /// use solana_sdk::native_token::LAMPORTS_PER_SOL;
+    /// use solana_sdk::signature::read_keypair_file;
+    /// use solana_sdk::signer::Signer;
+    /// use solana_sdk::system_program;
+    ///
+    /// use anchor_client::{Client, Cluster};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
+    /// let funder = Rc::new(read_keypair_file(
+    ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    /// )?);
+    /// let opts = CommitmentConfig::processed();
+    /// let pid = multisig_lite::id();
+    /// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+    ///
+    /// // Gets the PDAs.
+    /// let (state_pda, state_bump) =
+    ///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    /// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+    ///
+    /// // Funds the multisig account.
+    /// let sig = program
+    ///     .request()
+    ///     .accounts(multisig_lite::accounts::Fund {
+    ///         funder: funder.pubkey(),
+    ///         state: state_pda,
+    ///         fund: fund_pda,
+    ///         system_program: system_program::id(),
+    ///     })
+    ///     .args(multisig_lite::instruction::Fund {
+    ///         lamports: 1_000_000 * LAMPORTS_PER_SOL, // 1M SOL!? :)
+    ///         _state_bump: state_bump,
+    ///         fund_bump,
+    ///     })
+    ///     .signer(funder.as_ref())
+    ///     .send()?;
+    ///
+    /// println!("{sig}");
+    /// # Ok(())
+    /// # }
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn fund(ctx: Context<Fund>, lamports: u64, _state_bump: u8, fund_bump: u8) -> Result<()> {
         let funder = &ctx.accounts.funder;
@@ -456,6 +774,67 @@ pub mod multisig_lite {
     ///
     /// Transfer account creation fee will be given back to the
     /// creator of the transfer from the multisig fund.
+    ///
+    /// # Examples
+    ///
+    /// Here is how to create a pending transfer on Devnet:
+    ///
+    /// ```no_run
+    /// use std::rc::Rc;
+    ///
+    /// use solana_sdk::commitment_config::CommitmentConfig;
+    /// use solana_sdk::native_token::LAMPORTS_PER_SOL;
+    /// use solana_sdk::pubkey::Pubkey;
+    /// use solana_sdk::signature::read_keypair_file;
+    /// use solana_sdk::signer::{keypair::Keypair, Signer};
+    /// use solana_sdk::system_program;
+    ///
+    /// use anchor_client::{Client, Cluster};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
+    /// let funder = Rc::new(read_keypair_file(
+    ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    /// )?);
+    /// let opts = CommitmentConfig::processed();
+    /// let pid = multisig_lite::id();
+    /// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+    ///
+    /// // Gets the PDAs.
+    /// let (state_pda, state_bump) =
+    ///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    /// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+    ///
+    /// // Temporary transfer keypair.
+    /// //
+    /// // This is only required for the transaction signature and
+    /// // won't be required once the transaction is recorded on the
+    /// // ledger.
+    /// let transfer = Keypair::new();
+    ///
+    /// // Creates a pending transfer.
+    /// let sig = program
+    ///     .request()
+    ///     .accounts(multisig_lite::accounts::CreateTransfer {
+    ///         creator: funder.pubkey(),
+    ///         state: state_pda,
+    ///         fund: fund_pda,
+    ///         transfer: transfer.pubkey(),
+    ///         system_program: system_program::id(),
+    ///     })
+    ///     .args(multisig_lite::instruction::CreateTransfer {
+    ///         recipient: Pubkey::new_unique(),
+    ///         lamports: 1_000_000 * LAMPORTS_PER_SOL, // 1M SOL!? :)
+    ///         fund_bump,
+    ///     })
+    ///     .signer(funder.as_ref())
+    ///     .signer(&transfer)
+    ///     .send()?;
+    ///
+    /// println!("{sig}");
+    /// # Ok(())
+    /// # }
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn create_transfer(
         ctx: Context<CreateTransfer>,
@@ -504,7 +883,75 @@ pub mod multisig_lite {
     }
 
     /// Approves the transactions and executes the transfer
-    /// in case m approvals are met.
+    /// in case the `m` approvals are met.
+    ///
+    /// # Examples
+    ///
+    /// Here is how to approve pending transfers on Devnet:
+    ///
+    /// ```no_run
+    /// use std::rc::Rc;
+    ///
+    /// use solana_sdk::commitment_config::CommitmentConfig;
+    /// use solana_sdk::instruction::AccountMeta;
+    /// use solana_sdk::pubkey::Pubkey;
+    /// use solana_sdk::signature::read_keypair_file;
+    /// use solana_sdk::signer::Signer;
+    ///
+    /// use anchor_client::{Client, Cluster};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
+    /// let signer = Rc::new(read_keypair_file(
+    ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    /// )?);
+    /// let opts = CommitmentConfig::processed();
+    /// let pid = multisig_lite::id();
+    /// let program = Client::new_with_options(url, signer.clone(), opts).program(pid);
+    ///
+    /// // Gets the PDAs.
+    /// let (state_pda, state_bump) =
+    ///     Pubkey::find_program_address(&[b"state", signer.pubkey().as_ref()], &pid);
+    /// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+    ///
+    /// // Gets the pending transfers and the recipients account info.
+    /// let mut remaining_accounts = vec![];
+    /// let state: multisig_lite::State = program.account(state_pda)?;
+    /// for transfer_pubkey in state.queue {
+    ///     let transfer: multisig_lite::Transfer = program.account(transfer_pubkey)?;
+    ///
+    ///     // Pushes the transfer account.
+    ///     remaining_accounts.push(AccountMeta {
+    ///         pubkey: transfer_pubkey,
+    ///         is_signer: false,
+    ///         is_writable: true,
+    ///     });
+    ///
+    ///     // Pushes the recipient account.
+    ///     remaining_accounts.push(AccountMeta {
+    ///         pubkey: transfer.recipient,
+    ///         is_signer: false,
+    ///         is_writable: true,
+    ///     });
+    /// }
+    ///
+    /// // Approve the multisig account.
+    /// let sig = program
+    ///     .request()
+    ///     .accounts(multisig_lite::accounts::Approve {
+    ///         signer: signer.pubkey(),
+    ///         state: state_pda,
+    ///         fund: fund_pda,
+    ///     })
+    ///     .args(multisig_lite::instruction::Approve { fund_bump })
+    ///     .accounts(remaining_accounts)
+    ///     .signer(signer.as_ref())
+    ///     .send()?;
+    ///
+    /// println!("{sig}");
+    /// # Ok(())
+    /// # }
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn approve(ctx: Context<Approve>, fund_bump: u8) -> Result<()> {
         let signer = &ctx.accounts.signer;
@@ -591,10 +1038,71 @@ pub mod multisig_lite {
         Ok(())
     }
 
-    /// Closes a multisig account.
+    /// Closes the multisig account.
     ///
-    /// It cleans up all the remaining accounts and return back to the
-    /// funder.
+    /// It cleans up all the remaining accounts and return those rents
+    /// back to the funder, original creator of the multisig account.
+    ///
+    /// # Examples
+    ///
+    /// Here is how you close the multisig account on devnet:
+    ///
+    /// ```no_run
+    /// use std::rc::Rc;
+    ///
+    /// use solana_sdk::commitment_config::CommitmentConfig;
+    /// use solana_sdk::instruction::AccountMeta;
+    /// use solana_sdk::pubkey::Pubkey;
+    /// use solana_sdk::signature::read_keypair_file;
+    /// use solana_sdk::signer::Signer;
+    ///
+    /// use anchor_client::{Client, Cluster};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let url = Cluster::Devnet;
+    /// let funder = Rc::new(read_keypair_file(
+    ///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    /// )?);
+    /// let opts = CommitmentConfig::processed();
+    /// let pid = multisig_lite::id();
+    /// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+    ///
+    /// // Gets the PDAs.
+    /// let (state_pda, state_bump) =
+    ///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    /// let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+    ///
+    /// // Gets the remaining transfers to collects the rents.
+    /// let state: multisig_lite::State = program.account(state_pda)?;
+    /// let remaining_accounts: Vec<_> = state
+    ///     .queue
+    ///     .into_iter()
+    ///     .map(|pubkey| AccountMeta {
+    ///         pubkey,
+    ///         is_signer: false,
+    ///         is_writable: true,
+    ///     })
+    ///     .collect();
+    ///
+    /// // close the multisig account.
+    /// let sig = program
+    ///     .request()
+    ///     .accounts(multisig_lite::accounts::Close {
+    ///         funder: funder.pubkey(),
+    ///         state: state_pda,
+    ///         fund: fund_pda,
+    ///     })
+    ///     .args(multisig_lite::instruction::Close {
+    ///         _state_bump: state_bump,
+    ///         fund_bump,
+    ///     })
+    ///     .signer(funder.as_ref())
+    ///     .send()?;
+    ///
+    /// println!("{sig}");
+    /// # Ok(())
+    /// # }
+    /// ```
     #[allow(clippy::result_large_err)]
     pub fn close(ctx: Context<Close>, _state_bump: u8, fund_bump: u8) -> Result<()> {
         let funder = &mut ctx.accounts.funder;

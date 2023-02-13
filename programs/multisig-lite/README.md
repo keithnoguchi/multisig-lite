@@ -19,13 +19,79 @@ A native [SOL] [multisig] on-chain program for [Solana Blockchain].
 
 Currently, there are five instructions to provide the queued multisig transfer operation:
 
-1. [`create`](examples/create.rs)
-2. [`fund`](examples/fund.rs)
-3. [`create_transfer`](examples/create-transfer.rs)
-4. [`approve`](examples/approve.rs)
-5. [`close`](examples/close.rs)
+1. [`create`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.create.html)
+2. [`fund`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.fund.html)
+3. [`create_transfer`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.create_transfer.html)
+4. [`approve`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.approve.html)
+5. [`close`](https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/fn.close.html)
 
-Please refer to the [Rust doc] and [TypeScript test] for more detail.
+## Examples
+
+[`multisig_lite::multisig_lite`]: https://docs.rs/multisig-lite/latest/multisig_lite/multisig_lite/
+
+Here is how to create a new multisig account on-chain.
+
+Please refer to the [`multisig_lite::multisig_lite`] module level
+documentation for the other instructions' example.
+
+```
+use std::rc::Rc;
+
+use solana_sdk::commitment_config::CommitmentConfig;
+use solana_sdk::pubkey::Pubkey;
+use solana_sdk::signature::read_keypair_file;
+use solana_sdk::signer::Signer;
+use solana_sdk::system_program;
+
+use anchor_client::{Client, Cluster};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let url = Cluster::Devnet;
+    let funder = Rc::new(read_keypair_file(
+        shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+    )?);
+    let opts = CommitmentConfig::processed();
+    let pid = multisig_lite::id();
+    let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+
+    // Gets the PDAs.
+    let (state_pda, state_bump) =
+        Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+    let (fund_pda, fund_bump) = Pubkey::find_program_address(&[b"fund", state_pda.as_ref()], &pid);
+
+    // Creates a multisig account.
+    let sig = program
+        .request()
+        .accounts(multisig_lite::accounts::Create {
+            funder: funder.pubkey(),
+            state: state_pda,
+            fund: fund_pda,
+            system_program: system_program::id(),
+        })
+        .args(multisig_lite::instruction::Create {
+            m: 2, // m as in m/n.
+            signers: vec![funder.pubkey(), Pubkey::new_unique(), Pubkey::new_unique()],
+            q: 10, // transfer queue limit.
+            _state_bump: state_bump,
+            fund_bump,
+        })
+        .signer(funder.as_ref())
+        .send()?;
+
+    Ok(())
+}
+```
+
+## Test
+
+[solana-program-test]: https://crates.io/crates/solana-program-test
+
+You can run [solana-program-test] based functional tests with the standard
+`cargo test` command:
+
+```
+$ cargo test
+```
 
 ## License
 
