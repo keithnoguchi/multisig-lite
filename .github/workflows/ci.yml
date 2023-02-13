@@ -52,7 +52,7 @@ jobs:
         run: rustup update stable
       - name: Run cargo check
         run: |
-          cargo check --all-features --all-targets --bins --examples
+          cargo check -q --all-features --all-targets --bins --examples
 
   test:
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
         run: rustup update stable
       - name: Run cargo test
         run: |
-          cargo test --all-features --all-targets --bins --examples
+          cargo test -q --all-features --all-targets --bins --examples
 
   test-doc:
     runs-on: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
       - name: Install Rust
         run: rustup update stable
       - name: Run cargo test --doc
-        run: cargo test --doc
+        run: cargo test -q --doc
 
   build-sbf:
     runs-on: ubuntu-latest
@@ -90,7 +90,7 @@ jobs:
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
       - name: Run cargo build-sbf
-        run: cargo build-sbf --workspace
+        run: cargo build-sbf -q --workspace
 
   test-sbf:
     runs-on: ubuntu-latest
@@ -113,11 +113,11 @@ jobs:
       # This cargo build-spf and then cargo build-bpf is required to avoid
       # the InvalidAccountData error.
       - name: Run cargo build-sbf
-        run: cargo build-sbf
+        run: cargo build-sbf -q
       - name: Run cargo build-bpf
-        run: cargo build-bpf
+        run: cargo build-bpf -q
       - name: Run cargo test-sbf
-        run: cargo test-sbf --workspace
+        run: cargo test-sbf -q --workspace
 
   run-examples:
     runs-on: ubuntu-latest
@@ -134,7 +134,7 @@ jobs:
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         shell: bash
       - name: Run cargo build-sbf
-        run: cargo build-sbf --workspace --features localnet
+        run: cargo build-sbf -q --workspace --features localnet
       - name: Create a default signer
         run: solana-keygen new --no-bip39-passphrase
       - name: Use the local cluster
