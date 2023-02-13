@@ -320,6 +320,45 @@ impl State {
 }
 
 /// A multisig [`Transfer`] account data.
+///
+/// # Examples
+///
+/// Here is how to query the [`Transfer`] PDA account on Devnet.
+///
+/// ```no_run
+/// use std::rc::Rc;
+///
+/// use solana_sdk::commitment_config::CommitmentConfig;
+/// use solana_sdk::pubkey::Pubkey;
+/// use solana_sdk::signature::read_keypair_file;
+/// use solana_sdk::signer::Signer;
+///
+/// use anchor_client::{Client, Cluster};
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let url = Cluster::Devnet;
+/// let funder = Rc::new(read_keypair_file(
+///     shellexpand::tilde("~/.config/solana/id.json").as_ref(),
+/// )?);
+/// let opts = CommitmentConfig::processed();
+/// let pid = multisig_lite::id();
+/// let program = Client::new_with_options(url, funder.clone(), opts).program(pid);
+///
+/// // Gets the PDAs.
+/// let (state_pda, _state_bump) =
+///     Pubkey::find_program_address(&[b"state", funder.pubkey().as_ref()], &pid);
+///
+/// // Query the `multisig_lite::State` account to get the queued transfers.
+/// let state: multisig_lite::State = program.account(state_pda)?;
+///
+/// // Query the `multisig_lite::Transfer` accounts iteratively.
+/// for transfer in state.queue {
+///     let transfer: multisig_lite::Transfer = program.account(transfer)?;
+///     println!("{transfer:?}");
+/// }
+/// # Ok(())
+/// # }
+/// ```
 #[account]
 #[derive(Debug)]
 pub struct Transfer {
