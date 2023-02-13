@@ -15,7 +15,7 @@ use anchor_client::anchor_lang::AccountDeserialize;
 #[tokio::test]
 async fn create() {
     let mut tester = Tester::new().await;
-    tester.with_signature().create_transaction().await.unwrap();
+    tester.with_signature().create().await.unwrap();
 
     // State account.
     let state = tester.get_state_account().await;
@@ -41,7 +41,7 @@ async fn create_with_zero_threshold() {
         .await
         .with_m(0)
         .with_signature()
-        .create_transaction()
+        .create()
         .await
         .err()
         .unwrap();
@@ -56,7 +56,7 @@ async fn create_with_zero_threshold() {
 async fn create_without_signature() {
     let err = Tester::new()
         .await
-        .create_transaction()
+        .create()
         .await
         .err()
         .unwrap();
@@ -158,7 +158,7 @@ impl Tester {
             .unwrap()
     }
 
-    async fn create_transaction(&mut self) -> Result<(), solana_program_test::BanksClientError> {
+    async fn create(&mut self) -> Result<(), solana_program_test::BanksClientError> {
         let ixs = self
             .program
             .request()

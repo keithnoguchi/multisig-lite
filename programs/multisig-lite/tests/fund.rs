@@ -1,9 +1,9 @@
-//! `multisig_list::multisig_list::close` instruction tests.
+//! `multisig_list::multisig_list::fund` instruction tests.
 
 use solana_sdk::account::Account;
 use solana_sdk::commitment_config::CommitmentLevel;
 use solana_sdk::hash::Hash;
-use solana_sdk::instruction::AccountMeta;
+use solana_sdk::native_token::LAMPORTS_PER_SOL;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
 use solana_sdk::signer::Signer;
@@ -13,7 +13,7 @@ use solana_sdk::transaction::{Transaction, TransactionError};
 use anchor_client::anchor_lang::AccountDeserialize;
 
 #[tokio::test]
-async fn close() {
+async fn fund() {
     let mut tester = Tester::new().await;
 
     // Creates a multisig account.
@@ -23,22 +23,18 @@ async fn close() {
     assert!(tester.get_state_account().await.is_some());
     assert!(tester.get_fund_account().await.is_some());
 
-    // Then close it.
-    assert!(tester.with_signature().close().await.is_ok());
-
-    // And double check it's gone.
-    assert!(tester.get_state_account().await.is_none());
-    assert!(tester.get_fund_account().await.is_none());
+    // Then fund it.
+    assert!(tester.with_signature().fund(10 * LAMPORTS_PER_SOL).await.is_ok());
 }
 
 #[tokio::test]
-async fn close_without_signature() {
+async fn fund_without_signature() {
     let mut tester = Tester::new().await;
 
     // Creates a multisig account.
     tester.create().await;
 
-    let err = tester.close().await.err().unwrap();
+    let err = tester.fund(1 * LAMPORTS_PER_SOL).await.err().unwrap();
     assert_eq!(err.unwrap(), TransactionError::SignatureFailure);
 }
 
@@ -151,32 +147,21 @@ impl Tester {
         self.client.process_transaction(tx).await.unwrap();
     }
 
-    async fn close(&mut self) -> Result<(), solana_program_test::BanksClientError> {
-        // Gets the remaining transfers to collects the rents.
-        let state: multisig_lite::State = self.get_state_account().await.unwrap();
-        let remaining_accounts: Vec<_> = state
-            .queue
-            .into_iter()
-            .map(|pubkey| AccountMeta {
-                pubkey,
-                is_signer: false,
-                is_writable: true,
-            })
-            .collect();
-
+    async fn fund(&mut self, lamports: u64) -> Result<(), solana_program_test::BanksClientError> {
         let ixs = self
             .program
             .request()
-            .accounts(multisig_lite::accounts::Close {
+            .accounts(multisig_lite::accounts::Fund {
                 funder: self.funder.pubkey(),
                 state: self.state_pda,
                 fund: self.fund_pda,
+                system_program: system_program::id(),
             })
-            .args(multisig_lite::instruction::Close {
+            .args(multisig_lite::instruction::Fund {
+                lamports,
                 _state_bump: self.state_bump,
                 fund_bump: self.fund_bump,
             })
-            .accounts(remaining_accounts)
             .instructions()
             .unwrap();
 
