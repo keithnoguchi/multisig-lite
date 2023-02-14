@@ -213,6 +213,30 @@ jobs:
       - name: Run anchor test
         run: anchor test --skip-local-validator --skip-build
 
+  app-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install JS/TS modules
+        working-directory: app
+        run: yarn
+      - name: Lint the app
+        working-directory: app
+        run: yarn lint
+
+  app-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Install JS/TS modules
+        working-directory: app
+        run: yarn
+      - name: Check the app
+        working-directory: app
+        run: yarn check
+
   app-build:
     runs-on: ubuntu-latest
     steps:
