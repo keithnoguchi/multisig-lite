@@ -212,3 +212,15 @@ jobs:
         run: anchor run cp-program-keypair
       - name: Run anchor test
         run: anchor test --skip-local-validator --skip-build
+
+  app-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      - name: Change to the app directory
+        run: cd app
+      - name: Install JS/TS modules
+        run: yarn
+      - name: Build the app
+        run: yarn build
