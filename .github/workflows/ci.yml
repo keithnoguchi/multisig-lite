@@ -218,9 +218,9 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3
-      - name: Change to the app directory
-        run: cd app
       - name: Install JS/TS modules
+        working-directory: app
         run: yarn
       - name: Build the app
+        working-directory: app
         run: yarn build
