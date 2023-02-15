@@ -1,7 +1,7 @@
 <script>
 	import Button from '$lib/Button.svelte';
 	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
-	import FaCommentDollar from 'svelte-icons/fa/FaCommentDollar.svelte'
+	import FaCommentDollar from 'svelte-icons/fa/FaCommentDollar.svelte';
 </script>
 
 <Button let:isLeftHovered size="large" shadow>

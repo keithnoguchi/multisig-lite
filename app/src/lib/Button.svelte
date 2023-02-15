@@ -18,8 +18,12 @@
 	{#if $$slots.leftContent}
 		<div
 			class="left-content"
-			on:mouseenter={() => {isLeftHovered = true}}
-			on:mouseleave={() => {isLeftHovered = false}}
+			on:mouseenter={() => {
+				isLeftHovered = true;
+			}}
+			on:mouseleave={() => {
+				isLeftHovered = false;
+			}}
 		>
 			<slot name="leftContent" />
 		</div>
