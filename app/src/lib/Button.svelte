@@ -3,6 +3,8 @@
 	export let shadow = false;
 	export let bgColor = undefined;
 	export let textColor = undefined;
+
+	let isLeftHovered;
 </script>
 
 <button
@@ -14,11 +16,15 @@
 	class:shadow
 >
 	{#if $$slots.leftContent}
-		<div class="left-content">
+		<div
+			class="left-content"
+			on:mouseenter={() => {isLeftHovered = true}}
+			on:mouseleave={() => {isLeftHovered = false}}
+		>
 			<slot name="leftContent" />
 		</div>
 	{/if}
-	<slot />
+	<slot {isLeftHovered} />
 </button>
 
 <style lang="scss">

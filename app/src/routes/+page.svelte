@@ -1,11 +1,16 @@
 <script>
 	import Button from '$lib/Button.svelte';
 	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
+	import FaCommentDollar from 'svelte-icons/fa/FaCommentDollar.svelte'
 </script>
 
-<Button size="large" shadow>
+<Button let:isLeftHovered size="large" shadow>
 	<div style:width="20px" slot="leftContent">
-		<FaWallet />
+		{#if isLeftHovered}
+			<FaCommentDollar />
+		{:else}
+			<FaWallet />
+		{/if}
 	</div>
 	Coming soon...
 </Button>
