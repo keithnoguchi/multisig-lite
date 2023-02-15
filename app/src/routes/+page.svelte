@@ -4,7 +4,7 @@
 	import FaCommentDollar from 'svelte-icons/fa/FaCommentDollar.svelte';
 </script>
 
-<Button on:click|once={() => alert(true)} let:isLeftHovered size="large" shadow>
+<Button on:click={() => alert(true)} let:isLeftHovered size="large" shadow disabled>
 	<div style:width="20px" slot="leftContent">
 		{#if isLeftHovered}
 			<FaCommentDollar />
