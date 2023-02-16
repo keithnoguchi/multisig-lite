@@ -1,6 +1,6 @@
 # multisig-lite
 
-[![App](https://img.shields.io/badge/App-purple.svg?logo=Vercel)](
+[![App](https://img.shields.io/badge/App-green.svg?logo=Vercel)](
 https://multisig-lite.vercel.app)
 [![CI](https://github.com/keithnoguchi/multisig-lite/actions/workflows/ci.yml/badge.svg)](
 https://github.com/keithnoguchi/multisig-lite/actions)
