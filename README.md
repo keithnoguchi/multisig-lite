@@ -1,7 +1,5 @@
 # multisig-lite
 
-[![App](https://img.shields.io/badge/App-black.svg?logo=Vercel)](
-https://multisig-lite.vercel.app)
 [![CI](https://github.com/keithnoguchi/multisig-lite/actions/workflows/ci.yml/badge.svg)](
 https://github.com/keithnoguchi/multisig-lite/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)](
@@ -10,6 +8,8 @@ https://github.com/keithnoguchi/multisig-lite)
 https://crates.io/crates/multisig-lite)
 [![Documentation](https://docs.rs/multisig-lite/badge.svg)](
 https://docs.rs/multisig-lite)
+[![dApp](https://img.shields.io/badge/dApp-black.svg?logo=Vercel)](
+https://multisig-lite.vercel.app)
 
 [`sol`]: https://www.tradingview.com/chart/?symbol=SOL
 [multi signature wallet]: https://en.wikipedia.org/wiki/Cryptocurrency_wallet#Multisignature_wallet
