@@ -58,7 +58,7 @@
 			background-image: linear-gradient(rgba(255, 255, 255, 0.1) 0 0);
 		}
 		&.size-sm {
-			padding: 15px 20px;
+			padding: 5px 10px;
 		}
 		&.size-lg {
 			padding: 20px 25px;
