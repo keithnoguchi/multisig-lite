@@ -1,5 +1,7 @@
 # multisig-lite
 
+[![App](https://img.shields.io/badge/MADE%20BY%20Vercel-000000.svg?style=for-the-badge&logo=Vercel&labelColor=000)](
+https://multisig-lite.vercel.app)
 [![CI](https://github.com/keithnoguchi/multisig-lite/actions/workflows/ci.yml/badge.svg)](
 https://github.com/keithnoguchi/multisig-lite/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)](
