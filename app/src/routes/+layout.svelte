@@ -8,7 +8,7 @@
 
 <header>
 	<Button on:click={() => goto(home)} bgColor="purple" size="small" shadow>
-		<div style:width="16px">
+		<div style:width="8px">
 			<FaGithub />
 		</div>
 	</Button>
@@ -17,3 +17,18 @@
 <slot />
 
 <footer />
+
+<style>
+	header {
+		height: 16px;
+		display: flex;
+		align-items: right;
+		justify-content: right;
+	}
+
+	footer {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+</style>
