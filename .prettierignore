@@ -1,6 +1,7 @@
 
 .anchor
 .DS_Store
+app
 target
 node_modules
 dist
