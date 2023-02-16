@@ -11,18 +11,16 @@ https://docs.rs/multisig-lite)
 
 [`sol`]: https://www.tradingview.com/chart/?symbol=SOL
 [multi signature wallet]: https://en.wikipedia.org/wiki/Cryptocurrency_wallet#Multisignature_wallet
+[dapp]: app/README.md
 [on-chain program]: programs/multisig-lite/README.md
 [solana blockchain]: https://solana.com
 
-A native [`SOL`] [multi signature wallet] dApp and [on-chain program]
+A native [`SOL`] [multi signature wallet] [dApp] and [on-chain program]
 for [Solana Blockchain].
 
-## On-chain Program
-
-- [multisig-lite](programs/multisig-lite/README.md)
-  - [devnet](https://explorer.solana.com/address/Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t?cluster=devnet)
-
 ## Test
+
+### On-chain program
 
 [solana local development]: https://docs.solana.com/getstarted/local
 
