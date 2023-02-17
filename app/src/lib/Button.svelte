@@ -65,10 +65,10 @@
 			background-image: linear-gradient(rgba(255, 255, 255, 0.1) 0 0);
 		}
 		&.size-sm {
-			padding: 10px 20px;
+			padding: 5px 10px;
 		}
 		&.size-lg {
-			padding: 20px 40px;
+			padding: 10px 20px;
 		}
 		&.shadow {
 			box-shadow: 0 0 10px rgba(1, 1, 1, 0.3);
