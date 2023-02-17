@@ -10,29 +10,7 @@
 	let home = 'https://github.com/keithnoguchi/multisig-lite';
 </script>
 
-<slot />
-
-<footer>
-	{#if $publicKey}
-		<Button on:click={() => disconnect()} bgColor="purple" size="small" shadow>
-			<div style:width="20px" slot="leftContent">
-				<img src="/phantom.svg" alt="phantom" style:width="20px" />
-			</div>
-			{$publicKey}
-		</Button>
-	{:else}
-		<Button on:click={() => connect()} let:isHovered bgColor="purple" size="small" shadow>
-			<div style:width="20px" slot="leftContent">
-				{#if isHovered}
-					<img src="/phantom.svg" alt="phantom" style:width="20px" />
-				{:else}
-					<FaWallet />
-				{/if}
-			</div>
-			Connect
-		</Button>
-	{/if}
-
+<header>
 	<Button on:click={() => goto(home)} let:isHovered bgColor="purple" size="small" shadow>
 		<div style:width="20px">
 			{#if isHovered}
@@ -42,13 +20,44 @@
 			{/if}
 		</div>
 	</Button>
+</header>
+
+<slot />
+
+<footer>
+	{#if $publicKey}
+		<Button on:click={() => disconnect()} let:isHovered bgColor="purple" size="large" shadow>
+			<div style:width="20px" slot="leftContent">
+				<img src="/phantom.svg" alt="phantom" style:width="20px" />
+			</div>
+			{#if isHovered}
+				{$publicKey}
+			{:else}
+				Connected
+			{/if}
+		</Button>
+	{:else}
+		<Button on:click={() => connect()} bgColor="purple" size="large" shadow>
+			<div style:width="20px" slot="leftContent">
+				<FaWallet />
+			</div>
+			Connect
+		</Button>
+	{/if}
 </footer>
 
 <style>
+	header {
+		display: flex;
+		position: fixed;
+		top: 5px;
+		right: 5px;
+	}
+
 	footer {
 		display: flex;
 		position: fixed;
-		bottom: 0;
-		right: 0;
+		bottom: 5px;
+		right: 5px;
 	}
 </style>
