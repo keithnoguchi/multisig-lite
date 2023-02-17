@@ -30,7 +30,9 @@
 			<slot name="leftContent" />
 		</div>
 	{/if}
-	<slot {isLeftHovered} />
+	<div>
+		<slot {isLeftHovered} />
+	</div>
 </button>
 
 <style lang="scss">
