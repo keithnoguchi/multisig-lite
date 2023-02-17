@@ -8,6 +8,8 @@ https://github.com/keithnoguchi/multisig-lite)
 https://crates.io/crates/multisig-lite)
 [![Documentation](https://docs.rs/multisig-lite/badge.svg)](
 https://docs.rs/multisig-lite)
+[![dApp](https://img.shields.io/badge/dApp-black.svg?logo=Vercel)](
+https://multisig-lite.vercel.app)
 
 [`sol`]: https://www.tradingview.com/chart/?symbol=SOL
 [multi signature wallet]: https://en.wikipedia.org/wiki/Cryptocurrency_wallet#Multisignature_wallet
