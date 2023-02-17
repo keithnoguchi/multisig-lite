@@ -23,7 +23,6 @@ export function disconnect(): void {
 
 function onConnect() {
 	const provider = window && window.solana;
-	console.log(provider);
 	publicKey.set(provider.publicKey.toString());
 }
 
