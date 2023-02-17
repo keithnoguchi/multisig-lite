@@ -7,11 +7,11 @@
 	import FaGithubAlt from 'svelte-icons/fa/FaGithubAlt.svelte';
 	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
 
-	let home = 'https://github.com/keithnoguchi/multisig-lite';
+	let src = 'https://github.com/keithnoguchi/multisig-lite/tree/main/app';
 </script>
 
 <header>
-	<Button on:click={() => goto(home)} let:isHovered bgColor="purple" size="small" shadow>
+	<Button on:click={() => goto(src)} let:isHovered bgColor="purple" size="small" shadow>
 		<div style:width="20px">
 			{#if isHovered}
 				<FaGithubAlt />
