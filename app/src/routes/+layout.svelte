@@ -22,7 +22,11 @@
 	{:else}
 		<Button on:click={() => connect()} let:isLeftHovered bgColor="purple" size="small" shadow>
 			<div style:width="20px" slot="leftContent">
-				<FaWallet />
+				{#if isLeftHovered}
+					<img src="/phantom.svg" alt="phantom" style:width="20px" />
+				{:else}
+					<FaWallet />
+				{/if}
 			</div>
 			Connect
 		</Button>
