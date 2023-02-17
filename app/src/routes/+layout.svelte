@@ -7,7 +7,9 @@
 	let home = 'https://github.com/keithnoguchi/multisig-lite';
 </script>
 
-<header>
+<slot />
+
+<footer>
 	<Button
 		on:click={() => alert(true)}
 		let:isLeftHovered
@@ -16,9 +18,9 @@
 		shadow
 		disabled
 	>
-		<div style:width="15px" slot="leftContent">
+		<div style:width="20px" slot="leftContent">
 			{#if isLeftHovered}
-				<img src="/phantom.svg" alt="phantom" style:width="15px" />
+				<img src="/phantom.svg" alt="phantom" style:width="20px" />
 			{:else}
 				<FaWallet />
 			{/if}
@@ -27,18 +29,17 @@
 	</Button>
 
 	<Button on:click={() => goto(home)} bgColor="purple" size="small" shadow>
-		<div style:width="15px">
+		<div style:width="20px">
 			<FaGithub />
 		</div>
 	</Button>
-</header>
-
-<slot />
+</footer>
 
 <style>
-	header {
+	footer {
 		display: flex;
-		align-items: right;
-		justify-content: right;
+		position: fixed;
+		bottom: 0;
+		right: 0;
 	}
 </style>
