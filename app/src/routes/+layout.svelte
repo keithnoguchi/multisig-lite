@@ -1,34 +1,54 @@
 <script>
 	import { goto } from '$app/navigation';
+	import { connect, disconnect } from '$lib/wallet';
+	import { publicKey } from '../stores/wallet';
 	import Button from '$lib/Button.svelte';
-	import FaGithub from 'svelte-icons/fa/FaGithubSquare.svelte';
+	import FaGithub from 'svelte-icons/fa/FaGithub.svelte';
+	import FaGithubAlt from 'svelte-icons/fa/FaGithubAlt.svelte';
+	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
 
 	let home = 'https://github.com/keithnoguchi/multisig-lite';
 </script>
 
-<header>
-	<Button on:click={() => goto(home)} bgColor="purple" size="small" shadow>
-		<div style:width="8px">
-			<FaGithub />
-		</div>
-	</Button>
-</header>
-
 <slot />
 
-<footer />
+<footer>
+	{#if $publicKey}
+		<Button on:click={() => disconnect()} bgColor="purple" size="small" shadow>
+			<div style:width="20px" slot="leftContent">
+				<img src="/phantom.svg" alt="phantom" style:width="20px" />
+			</div>
+			{$publicKey}
+		</Button>
+	{:else}
+		<Button on:click={() => connect()} let:isHovered bgColor="purple" size="small" shadow>
+			<div style:width="20px" slot="leftContent">
+				{#if isHovered}
+					<img src="/phantom.svg" alt="phantom" style:width="20px" />
+				{:else}
+					<FaWallet />
+				{/if}
+			</div>
+			Connect
+		</Button>
+	{/if}
+
+	<Button on:click={() => goto(home)} let:isHovered bgColor="purple" size="small" shadow>
+		<div style:width="20px">
+			{#if isHovered}
+				<FaGithubAlt />
+			{:else}
+				<FaGithub />
+			{/if}
+		</div>
+	</Button>
+</footer>
 
 <style>
-	header {
-		height: 16px;
-		display: flex;
-		align-items: right;
-		justify-content: right;
-	}
-
 	footer {
 		display: flex;
-		align-items: center;
-		justify-content: center;
+		position: fixed;
+		bottom: 0;
+		right: 0;
 	}
 </style>
