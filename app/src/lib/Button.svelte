@@ -4,11 +4,18 @@
 	export let bgColor = undefined;
 	export let textColor = undefined;
 
+	let isHovered;
 	let isLeftHovered;
 </script>
 
 <button
 	on:click
+	on:mouseenter={() => {
+		isHovered = true;
+	}}
+	on:mouseleave={() => {
+		isHovered = false;
+	}}
 	style:background-color={bgColor}
 	style:color={textColor}
 	class:size-lg={size === 'large'}
@@ -30,7 +37,7 @@
 			<slot name="leftContent" />
 		</div>
 	{/if}
-	<slot {isLeftHovered} />
+	<slot {isHovered} {isLeftHovered} />
 </button>
 
 <style lang="scss">

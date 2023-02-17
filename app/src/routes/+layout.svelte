@@ -4,6 +4,7 @@
 	import { publicKey } from '../stores/wallet';
 	import Button from '$lib/Button.svelte';
 	import FaGithub from 'svelte-icons/fa/FaGithub.svelte';
+	import FaGithubAlt from 'svelte-icons/fa/FaGithubAlt.svelte';
 	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
 
 	let home = 'https://github.com/keithnoguchi/multisig-lite';
@@ -20,9 +21,9 @@
 			{$publicKey}
 		</Button>
 	{:else}
-		<Button on:click={() => connect()} let:isLeftHovered bgColor="purple" size="small" shadow>
+		<Button on:click={() => connect()} let:isHovered bgColor="purple" size="small" shadow>
 			<div style:width="20px" slot="leftContent">
-				{#if isLeftHovered}
+				{#if isHovered}
 					<img src="/phantom.svg" alt="phantom" style:width="20px" />
 				{:else}
 					<FaWallet />
@@ -32,9 +33,13 @@
 		</Button>
 	{/if}
 
-	<Button on:click={() => goto(home)} bgColor="purple" size="small" shadow>
+	<Button on:click={() => goto(home)} let:isHovered bgColor="purple" size="small" shadow>
 		<div style:width="20px">
-			<FaGithub />
+			{#if isHovered}
+				<FaGithubAlt />
+			{:else}
+				<FaGithub />
+			{/if}
 		</div>
 	</Button>
 </footer>
