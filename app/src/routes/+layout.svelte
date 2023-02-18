@@ -11,8 +11,9 @@
 	let githubSrc = 'https://github.com/keithnoguchi/multisig-lite/tree/main/app';
 	let solIconSrc =
 		'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
-	$: explorerSrc =
-		$publicKey && `https://explorer.solana.com/address/${$publicKey}/?cluster=devnet`;
+	$: explorerSrc = $publicKey
+		? `https://explorer.solana.com/address/${$publicKey}/?cluster=devnet`
+		: `https://explorer.solana.com/?cluster=devnet`;
 </script>
 
 <header>
@@ -26,19 +27,13 @@
 		</div>
 	</Button>
 
-	{#if $publicKey}
-		<Button on:click={() => goto(explorerSrc)} size="small">
-			<Account address={$publicKey} prefix="$">
-				<span slot="rightContent">
-					<img src={solIconSrc} alt="solana native token" />
-				</span>
-			</Account>
-		</Button>
-	{:else}
-		<Button size="small" disabled>
-			<img src={solIconSrc} alt="solana native token" />
-		</Button>
-	{/if}
+	<Button on:click={() => goto(explorerSrc)} size="small">
+		<Account address={$publicKey} prefix="$">
+			<span slot="rightContent">
+				<img src={solIconSrc} alt="solana native token" />
+			</span>
+		</Account>
+	</Button>
 </header>
 
 <slot />
