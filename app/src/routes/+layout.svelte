@@ -14,25 +14,21 @@
 </script>
 
 <header>
-	<div>
-		<Button on:click={() => goto(githubSrc)} let:isHovered bgColor="purple" size="small" shadow>
-			<div style:width="20px">
-				{#if isHovered}
-					<FaGithubAlt />
-				{:else}
-					<FaGithub />
-				{/if}
-			</div>
-		</Button>
-	</div>
+	<Button on:click={() => goto(githubSrc)} let:isHovered bgColor="purple" size="small" shadow>
+		<div style:width="20px">
+			{#if isHovered}
+				<FaGithubAlt />
+			{:else}
+				<FaGithub />
+			{/if}
+		</div>
+	</Button>
 
-	<div>
-		<Account address={$publicKey}>
-			<span slot="rightContent">
-				<img src={solIconSrc} alt="solana native token" />
-			</span>
-		</Account>
-	</div>
+	<Account address={$publicKey}>
+		<span slot="rightContent">
+			<img src={solIconSrc} alt="solana native token" />
+		</span>
+	</Account>
 </header>
 
 <slot />

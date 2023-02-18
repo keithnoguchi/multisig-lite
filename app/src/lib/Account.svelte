@@ -9,32 +9,34 @@
 	$: balance = address && getBalance(address);
 </script>
 
-{#if $$slots.leftContent}
-	<span class="left-content">
-		<slot name="leftContent" />
-	</span>
-{/if}
+<div>
+	{#if $$slots.leftContent}
+		<span id="left-content">
+			<slot name="leftContent" />
+		</span>
+	{/if}
 
-{#if address}
-	<span id="content">
-		{#await balance}
-			...
-		{:then _balance}
-			{(_balance / 1e9).toLocaleString('en', {
-				minimumFractionDigits: 2,
-				maximumFractionDigits: 2
-			})}
-		{:catch e}
-			e.message
-		{/await}
-	</span>
-{/if}
+	{#if address}
+		<span id="content">
+			{#await balance}
+				...
+			{:then _balance}
+				{(_balance / 1e9).toLocaleString('en', {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2
+				})}
+			{:catch e}
+				e.message
+			{/await}
+		</span>
+	{/if}
 
-{#if $$slots.rightContent}
-	<span class="right-content">
-		<slot name="rightContent" />
-	</span>
-{/if}
+	{#if $$slots.rightContent}
+		<span id="right-content">
+			<slot name="rightContent" />
+		</span>
+	{/if}
+</div>
 
 <style lang="scss">
 	#content {
