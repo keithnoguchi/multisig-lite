@@ -1,10 +1,11 @@
 <script>
-	import { publicKey } from '../stores/wallet';
 	import { getBalance } from '$lib/provider';
 
 	export let address = '';
-
-	let isHovered;
+	export let prefix = '';
+	export let suffix = '';
+	export let minimumFractionDigits = 2;
+	export let maximumFractionDigits = 3;
 
 	$: balance = address && getBalance(address);
 </script>
@@ -21,10 +22,12 @@
 			{#await balance}
 				...
 			{:then _balance}
-				{(_balance / 1e9).toLocaleString('en', {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2
-				})}
+				{prefix +
+					(_balance / 1e9).toLocaleString('en', {
+						minimumFractionDigits,
+						maximumFractionDigits
+					}) +
+					suffix}
 			{:catch e}
 				e.message
 			{/await}
@@ -40,8 +43,8 @@
 
 <style lang="scss">
 	#content {
-		vertical-align: top;
-		font-size: 30px;
+		font-size: 25px;
 		font-family: 'Courier New';
+		vertical-align: bottom;
 	}
 </style>

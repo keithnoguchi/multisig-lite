@@ -4,7 +4,7 @@
 
 import { publicKey } from '../stores/wallet';
 
-declare let window: any;
+declare let window;
 
 export function connect(): void {
 	const provider = window && window.solana;

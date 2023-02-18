@@ -14,7 +14,7 @@
 </script>
 
 <header>
-	<Button on:click={() => goto(githubSrc)} let:isHovered bgColor="purple" size="small" shadow>
+	<Button on:click={() => goto(githubSrc)} let:isHovered bgColor="purple" size="small">
 		<div style:width="20px">
 			{#if isHovered}
 				<FaGithubAlt />
@@ -24,7 +24,7 @@
 		</div>
 	</Button>
 
-	<Account address={$publicKey}>
+	<Account address={$publicKey} prefix="$">
 		<span slot="rightContent">
 			<img src={solIconSrc} alt="solana native token" />
 		</span>
@@ -60,12 +60,15 @@
 		/* https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
 		display: flex;
 		justify-content: space-between;
+		color: white;
+		background-color: purple;
 	}
 
 	img {
 		max-width: 30px;
 		max-height: 30px;
 		border-radius: 10px;
+		vertical-align: middle;
 	}
 
 	footer {
