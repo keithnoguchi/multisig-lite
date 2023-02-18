@@ -1,4 +1,5 @@
 <script>
+	import { cluster } from '../stores/cluster';
 	import { getBalance } from '$lib/provider';
 
 	export let address = '';
@@ -7,7 +8,7 @@
 	export let minimumFractionDigits = 2;
 	export let maximumFractionDigits = 3;
 
-	$: balance = address && getBalance(address);
+	$: balance = address && getBalance($cluster, address);
 </script>
 
 <div>
@@ -29,7 +30,7 @@
 					}) +
 					suffix}
 			{:catch e}
-				e.message
+				{e.message}
 			{/await}
 		</span>
 	{/if}
