@@ -16,7 +16,9 @@ env:
   RUSTFLAGS: -D warnings
   RUSTDOCFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
-  SOLANA_VERSION: v1.15.0
+  # We'll stick to the stable release, as in the local development doc[1].
+  # [1]: https://docs.solana.com/getstarted/local
+  SOLANA_VERSION: stable
   PROGRAM_KEYPAIR: ./.github/keys/multisig_lite-keypair.json
 
 defaults:
