@@ -17,6 +17,6 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 fmt = "cargo fmt && yarn lint:fix"
-validator = "solana-test-validator -r -q &"
-cp-program-keypair = "cp .github/keys/multisig_lite-keypair.json ./target/deploy/"
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+local-validator = "solana-test-validator -r -q &"
+cp-local-program-keypair = "cp .github/keys/multisig_lite-keypair.json ./target/deploy/"
