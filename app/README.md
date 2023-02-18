@@ -6,7 +6,7 @@
 
 [sveltekit]: https://kit.svelte.dev/
 [dapp]: https://multisig-lite.vercel.app/
-[multisig-lite]: ../../programs/multisig-lite/README.md
+[multisig-lite]: https://crates.io/crates/multisig-lite
 
 A [SvelteKit] [dApp] for [multisig-lite] on-chain program.
 
