@@ -207,11 +207,11 @@ jobs:
       - name: Use the local cluster
         run: solana config set -u localhost
       - name: Run the local validator
-        run: anchor run validator
+        run: anchor run local-validator
       - name: Run anchor build
         run: anchor build -- --features localnet
       - name: Copy the program keypair file
-        run: anchor run cp-program-keypair
+        run: anchor run cp-local-program-keypair
       - name: Run anchor test
         run: anchor test --skip-local-validator --skip-build
 

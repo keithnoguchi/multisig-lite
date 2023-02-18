@@ -31,8 +31,8 @@ Run those anchor commands on the [Solana local development] environment:
 ```
 $ yarn
 $ anchor build -- --features localnet
-$ anchor run cp-program-keypair
-$ anchor run validator
+$ anchor run cp-local-program-keypair
+$ anchor run local-validator
 $ anchor test --skip-build --skip-local-validator
 ```
 
