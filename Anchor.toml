@@ -8,6 +8,10 @@ multisig_lite = "Ecycmji8eeggXrA3rD2cdEHpHDnP4btvVfcyTBS9cG9t"
 [programs.localnet]
 multisig_lite = "AeAQKcvUbG6LmunEAiL2Vim5dN2uL5TNwJfgsGdyroQ3"
 
+# https://www.anchor-lang.com/docs/manifest
+[workspace]
+types = "app/src/idl"
+
 [registry]
 url = "https://api.apr.dev"
 
