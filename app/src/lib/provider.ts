@@ -1,9 +1,8 @@
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
 
-const endpoint = clusterApiUrl(); // devnet by default.
-const connection = new Connection(endpoint);
-
-export async function getBalance(publicKey: string): Promise<number> {
-	const key = new PublicKey(publicKey);
+export async function getBalance(cluster: string, address: string): Promise<number> {
+	const endpoint = clusterApiUrl(cluster);
+	const connection = new Connection(endpoint);
+	const key = new PublicKey(address);
 	return connection.getBalance(key);
 }
