@@ -11,10 +11,12 @@
 	let githubSrc = 'https://github.com/keithnoguchi/multisig-lite/tree/main/app';
 	let solIconSrc =
 		'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
+	$: explorerSrc =
+		$publicKey && `https://explorer.solana.com/address/${$publicKey}/?cluster=devnet`;
 </script>
 
 <header>
-	<Button on:click={() => goto(githubSrc)} let:isHovered bgColor="purple" size="small">
+	<Button on:click={() => goto(githubSrc)} let:isHovered size="small">
 		<div style:width="20px">
 			{#if isHovered}
 				<FaGithubAlt />
@@ -24,18 +26,26 @@
 		</div>
 	</Button>
 
-	<Account address={$publicKey} prefix="$">
-		<span slot="rightContent">
+	{#if $publicKey}
+		<Button on:click={() => goto(explorerSrc)} size="small">
+			<Account address={$publicKey} prefix="$">
+				<span slot="rightContent">
+					<img src={solIconSrc} alt="solana native token" />
+				</span>
+			</Account>
+		</Button>
+	{:else}
+		<Button size="small" disabled>
 			<img src={solIconSrc} alt="solana native token" />
-		</span>
-	</Account>
+		</Button>
+	{/if}
 </header>
 
 <slot />
 
 <footer>
 	{#if $publicKey}
-		<Button on:click={() => disconnect()} let:isHovered bgColor="purple" size="large" shadow>
+		<Button on:click={() => disconnect()} let:isHovered size="large" shadow>
 			<div style:width="20px" slot="leftContent">
 				<img src="/phantom.svg" alt="phantom" style:width="20px" />
 			</div>
@@ -46,7 +56,7 @@
 			{/if}
 		</Button>
 	{:else}
-		<Button on:click={() => connect()} bgColor="purple" size="large" shadow>
+		<Button on:click={() => connect()} size="large" shadow>
 			<div style:width="20px" slot="leftContent">
 				<FaWallet />
 			</div>

@@ -44,6 +44,7 @@
 <style lang="scss">
 	#content {
 		font-size: 25px;
+		font-weight: normal;
 		font-family: 'Courier New';
 		vertical-align: bottom;
 	}

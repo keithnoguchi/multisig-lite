@@ -45,9 +45,10 @@
 		display: flex;
 		align-items: center;
 		border: none;
-		background-color: #ff3e00;
-		color: #ffffff;
+		background-color: purple;
+		color: white;
 
+		font-size: 15px;
 		font-weight: bold;
 		border-radius: 10px;
 		cursor: pointer;
