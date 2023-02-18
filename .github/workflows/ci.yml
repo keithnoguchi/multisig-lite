@@ -16,7 +16,7 @@ env:
   RUSTFLAGS: -D warnings
   RUSTDOCFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
-  SOLANA_VERSION: v1.15.0
+  SOLANA_VERSION: v1.15.2
   PROGRAM_KEYPAIR: ./.github/keys/multisig_lite-keypair.json
 
 defaults:
