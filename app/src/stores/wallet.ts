@@ -1,8 +1,9 @@
+import { PublicKey } from '@solana/web3.js';
 import { writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
 
 type Wallet = {
-	publicKey: string;
+	publicKey: PublicKey;
 };
 
 export const wallet: Writable<Wallet> = writable({

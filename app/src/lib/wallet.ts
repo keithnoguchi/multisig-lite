@@ -30,7 +30,7 @@ function onConnect() {
 	wallet.update((current) => {
 		return {
 			...current,
-			publicKey: provider.publicKey.toString()
+			publicKey: provider.publicKey
 		};
 	});
 }

@@ -13,9 +13,10 @@
 	let solIconSrc =
 		'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
 	$: explorer = `https://explorer.solana.com/?cluster=${$cluster}`;
-	$: explorerSrc = $wallet.publicKey
-		? `https://explorer.solana.com/address/${$wallet.publicKey}/?cluster=${$cluster}`
-		: `https://explorer.solana.com/?cluster=${$cluster}`;
+	$: explorerSrc =
+		$wallet && $wallet.publicKey
+			? `https://explorer.solana.com/address/${$wallet.publicKey.toString()}/?cluster=${$cluster}`
+			: `https://explorer.solana.com/?cluster=${$cluster}`;
 </script>
 
 <header>
@@ -47,7 +48,7 @@
 				<img src="/phantom.svg" alt="phantom" style:width="20px" />
 			</div>
 			{#if isHovered}
-				{$wallet.publicKey}
+				{$wallet.publicKey.toString()}
 			{:else}
 				{$cluster}
 			{/if}
