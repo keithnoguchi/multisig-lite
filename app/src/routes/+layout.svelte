@@ -13,10 +13,9 @@
 	let solIconSrc =
 		'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
 	$: explorer = `https://explorer.solana.com/?cluster=${$cluster}`;
-	$: explorerSrc =
-		$wallet && $wallet.publicKey
-			? `https://explorer.solana.com/address/${$wallet.publicKey.toString()}/?cluster=${$cluster}`
-			: `https://explorer.solana.com/?cluster=${$cluster}`;
+	$: explorerSrc = $wallet.publicKey
+		? `https://explorer.solana.com/address/${$wallet.publicKey.toString()}/?cluster=${$cluster}`
+		: `https://explorer.solana.com/?cluster=${$cluster}`;
 </script>
 
 <header>
@@ -31,7 +30,7 @@
 	</Button>
 
 	<Button id="header-right" on:click={() => goto(explorerSrc)} size="small">
-		<Account address={$wallet.publicKey} prefix="$">
+		<Account cluster={$cluster} address={$wallet.publicKey} prefix="$">
 			<span slot="rightContent">
 				<img src={solIconSrc} alt="solana native token" />
 			</span>

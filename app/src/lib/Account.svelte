@@ -1,14 +1,14 @@
 <script>
-	import { cluster } from '../stores/cluster';
 	import { getBalance } from '$lib/provider';
 
+	export let cluster = '';
 	export let address = '';
 	export let prefix = '';
 	export let suffix = '';
 	export let minimumFractionDigits = 2;
 	export let maximumFractionDigits = 3;
 
-	$: balance = address && getBalance($cluster, address);
+	$: balance = address && getBalance(cluster, address);
 </script>
 
 <div>
