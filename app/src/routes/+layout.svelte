@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { connect, disconnect } from '$lib/wallet';
 	import { cluster } from '../stores/cluster';
-	import { publicKey } from '../stores/wallet';
+	import { wallet } from '../stores/wallet';
 	import Button from '$lib/Button.svelte';
 	import Account from '$lib/Account.svelte';
 	import FaGithub from 'svelte-icons/fa/FaGithub.svelte';
@@ -13,8 +13,8 @@
 	let solIconSrc =
 		'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
 	$: explorer = `https://explorer.solana.com/?cluster=${$cluster}`;
-	$: explorerSrc = $publicKey
-		? `https://explorer.solana.com/address/${$publicKey}/?cluster=${$cluster}`
+	$: explorerSrc = $wallet.publicKey
+		? `https://explorer.solana.com/address/${$wallet.publicKey}/?cluster=${$cluster}`
 		: `https://explorer.solana.com/?cluster=${$cluster}`;
 </script>
 
@@ -30,7 +30,7 @@
 	</Button>
 
 	<Button id="header-right" on:click={() => goto(explorerSrc)} size="small">
-		<Account address={$publicKey} prefix="$">
+		<Account address={$wallet.publicKey} prefix="$">
 			<span slot="rightContent">
 				<img src={solIconSrc} alt="solana native token" />
 			</span>
@@ -41,13 +41,13 @@
 <slot />
 
 <footer>
-	{#if $publicKey}
+	{#if $wallet.publicKey}
 		<Button on:click={() => disconnect()} let:isHovered size="large" shadow>
 			<div style:width="20px" slot="leftContent">
 				<img src="/phantom.svg" alt="phantom" style:width="20px" />
 			</div>
 			{#if isHovered}
-				{$publicKey}
+				{$wallet.publicKey}
 			{:else}
 				{$cluster}
 			{/if}

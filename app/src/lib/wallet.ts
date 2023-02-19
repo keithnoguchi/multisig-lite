@@ -1,14 +1,18 @@
-// Credit to [monomadic].
+// Credit to [monomadic] and [DugAnderson444].
+//
+// This is a PoC before migrating to the official
+// [WalletAdapter].
 //
 // [monomadic]: https://github.com/monomadic/solana-tokenlist/blob/master/src/lib/wallet.ts
+// [duganderson444]: https://github.com/DougAnderson444/solblog/blob/master/app/src/lib/helpers/wallet-adapter-phantom.ts
+// [walletadapter]: https://solana-labs.github.io/wallet-adapter/
 
-import { publicKey } from '../stores/wallet';
+import { wallet } from '../stores/wallet';
 
 declare let window;
 
 export function connect(): void {
 	const provider = window && window.solana;
-
 	if (provider) {
 		provider.on('connect', onConnect);
 		provider.on('disconnect', onDisconnect);
@@ -23,9 +27,19 @@ export function disconnect(): void {
 
 function onConnect() {
 	const provider = window && window.solana;
-	publicKey.set(provider.publicKey.toString());
+	wallet.update((current) => {
+		return {
+			...current,
+			publicKey: provider.publicKey.toString()
+		};
+	});
 }
 
 function onDisconnect() {
-	publicKey.set(undefined);
+	wallet.update((current) => {
+		return {
+			...current,
+			publicKey: undefined
+		};
+	});
 }
