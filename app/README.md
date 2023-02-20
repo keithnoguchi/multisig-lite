@@ -10,4 +10,18 @@
 
 A [SvelteKit] [dApp] for [multisig-lite] on-chain program.
 
+## Development
+
+[phantom]: https://phantom.app/download
+[`yarn`]: https://yarnpkg.com/getting-started/install
+
+Install [phantom] and [`yarn`], and then:
+
+```
+$ yarn
+$ yarn dev --open
+```
+
+![app](src/static/app.png)
+
 Happy Hacking!
