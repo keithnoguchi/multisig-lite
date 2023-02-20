@@ -22,6 +22,8 @@ $ yarn
 $ yarn dev --open
 ```
 
-[![app](static/app.png)](https://multisig-lite.vercel.app)
+<p align="center">
+  [![app](static/app.png)](https://multisig-lite.vercel.app)
+</p>
 
 Happy Hacking!
