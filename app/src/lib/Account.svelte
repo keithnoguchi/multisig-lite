@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { provider } from '../stores/provider';
 	import { PublicKey } from '@solana/web3.js';
-	import { cluster } from '../stores/cluster';
 
 	export let address = '';
 	export let prefix = '';
@@ -10,7 +10,7 @@
 
 	async function getBalance(address: string): Promise<number> {
 		const publicKey = new PublicKey(address);
-		return $cluster.connection.getBalance(publicKey);
+		return $provider.connection.getBalance(publicKey);
 	}
 </script>
 

@@ -3,6 +3,7 @@
 	import { connect, disconnect } from '$lib/wallet';
 	import { cluster } from '../stores/cluster';
 	import { wallet } from '../stores/wallet';
+	import { provider } from '../stores/provider';
 	import Button from '$lib/Button.svelte';
 	import Account from '$lib/Account.svelte';
 	import FaGithub from 'svelte-icons/fa/FaGithub.svelte';
@@ -12,10 +13,9 @@
 	let githubSrc = 'https://github.com/keithnoguchi/multisig-lite/tree/main/app';
 	let solIconSrc =
 		'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
-	$: explorer = `https://explorer.solana.com/?cluster=${$cluster.name}`;
-	$: explorerSrc = $wallet.address
-		? `https://explorer.solana.com/address/${$wallet.address}/?cluster=${$cluster.name}`
-		: `https://explorer.solana.com/?cluster=${$cluster.name}`;
+	$: explorer = $wallet.address
+		? `https://explorer.solana.com/address/${$wallet.address}/?cluster=${$cluster}`
+		: `https://explorer.solana.com/?cluster=${$cluster}`;
 </script>
 
 <header>
@@ -29,7 +29,7 @@
 		</div>
 	</Button>
 
-	<Button id="header-right" on:click={() => goto(explorerSrc)} size="small">
+	<Button id="header-right" on:click={() => goto(explorer)} size="small">
 		<Account address={$wallet.address} prefix="$">
 			<span slot="rightContent">
 				<img src={solIconSrc} alt="solana native token" />
@@ -49,7 +49,7 @@
 			{#if isHovered}
 				{$wallet.address}
 			{:else}
-				{$cluster.name}
+				{$cluster}
 			{/if}
 		</Button>
 	{:else}
