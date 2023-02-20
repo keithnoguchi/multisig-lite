@@ -13,8 +13,8 @@
 	let solIconSrc =
 		'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
 	$: explorer = `https://explorer.solana.com/?cluster=${$cluster}`;
-	$: explorerSrc = $wallet.publicKey
-		? `https://explorer.solana.com/address/${$wallet.publicKey.toString()}/?cluster=${$cluster}`
+	$: explorerSrc = $wallet.address
+		? `https://explorer.solana.com/address/${$wallet.address}/?cluster=${$cluster}`
 		: `https://explorer.solana.com/?cluster=${$cluster}`;
 </script>
 
@@ -30,7 +30,7 @@
 	</Button>
 
 	<Button id="header-right" on:click={() => goto(explorerSrc)} size="small">
-		<Account cluster={$cluster} address={$wallet.publicKey} prefix="$">
+		<Account address={$wallet.address} prefix="$">
 			<span slot="rightContent">
 				<img src={solIconSrc} alt="solana native token" />
 			</span>
@@ -41,13 +41,13 @@
 <slot />
 
 <footer>
-	{#if $wallet.publicKey}
+	{#if $wallet.address}
 		<Button on:click={() => disconnect()} let:isHovered size="large" shadow>
 			<div style:width="20px" slot="leftContent">
 				<img src="/phantom.svg" alt="phantom" style:width="20px" />
 			</div>
 			{#if isHovered}
-				{$wallet.publicKey.toString()}
+				{$wallet.address}
 			{:else}
 				{$cluster}
 			{/if}

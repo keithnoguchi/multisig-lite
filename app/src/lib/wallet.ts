@@ -30,6 +30,7 @@ function onConnect() {
 	wallet.update((current) => {
 		return {
 			...current,
+			address: provider.publicKey.toString(),
 			publicKey: provider.publicKey,
 			signTransaction: provider.signTransaction,
 			signAllTransactions: provider.signAllTransactions
@@ -41,6 +42,7 @@ function onDisconnect() {
 	wallet.update((current) => {
 		return {
 			...current,
+			address: undefined,
 			publicKey: undefined
 		};
 	});

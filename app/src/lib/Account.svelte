@@ -1,14 +1,18 @@
-<script>
-	import { getBalance } from '$lib/provider';
+<script lang="ts">
+	import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
+	import { cluster } from '../stores/cluster';
 
-	export let cluster = '';
 	export let address = '';
 	export let prefix = '';
 	export let suffix = '';
 	export let minimumFractionDigits = 2;
 	export let maximumFractionDigits = 3;
 
-	$: balance = address && getBalance(cluster, address);
+	async function getBalance(address: string): Promise<number> {
+		const endpoint = clusterApiUrl($cluster);
+		const connection = new Connection(endpoint);
+		return connection.getBalance(new PublicKey(address));
+	}
 </script>
 
 <div>
@@ -20,7 +24,7 @@
 
 	{#if address}
 		<span id="content">
-			{#await balance}
+			{#await getBalance(address)}
 				...
 			{:then _balance}
 				{prefix +
