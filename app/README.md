@@ -22,6 +22,6 @@ $ yarn
 $ yarn dev --open
 ```
 
-![app](src/static/app.png)
+![app](static/app.png)
 
 Happy Hacking!
