@@ -7,7 +7,7 @@
 // [duganderson444]: https://github.com/DougAnderson444/solblog/blob/master/app/src/lib/helpers/wallet-adapter-phantom.ts
 // [walletadapter]: https://solana-labs.github.io/wallet-adapter/
 
-import { wallet } from '../stores/wallet';
+import { wallet, Wallet } from '../stores/wallet';
 
 declare let window;
 
@@ -27,23 +27,12 @@ export function disconnect(): void {
 
 function onConnect() {
 	const provider = window && window.solana;
-	wallet.update((current) => {
-		return {
-			...current,
-			address: provider.publicKey.toString(),
-			publicKey: provider.publicKey,
-			signTransaction: provider.signTransaction,
-			signAllTransactions: provider.signAllTransactions
-		};
-	});
+	const newWallet = new Wallet(provider.publicKey);
+	newWallet.signTransaction = provider.signTransaction;
+	newWallet.signAllTransactions = provider.signAllTransactions;
+	wallet.set(newWallet);
 }
 
 function onDisconnect() {
-	wallet.update((current) => {
-		return {
-			...current,
-			address: undefined,
-			publicKey: undefined
-		};
-	});
+	wallet.set(new Wallet());
 }

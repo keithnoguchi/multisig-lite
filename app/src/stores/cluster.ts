@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
-import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
+import { Connection, clusterApiUrl } from '@solana/web3.js';
 
 class Cluster {
 	constructor(name: string) {
