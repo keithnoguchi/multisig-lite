@@ -10,13 +10,25 @@
 import { get } from 'svelte/store';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { AnchorProvider } from '@project-serum/anchor';
+import { browser } from '$app/environment';
 import { wallet, Wallet } from '../stores/wallet';
 import { cluster } from '../stores/cluster';
 import { provider } from '../stores/provider';
 
-declare let window;
+// https://kit.svelte.dev/docs/load#layout-data
+export const load = () => {
+	// It's only relevant on CSR, as it's a dApp. :)
+	//
+	// https://anthonyrileyorg.wordpress.com/2021/12/31/creating-a-dapp-with-sveltekit/
+	if (browser) {
+		return {
+			connect: connect,
+			disconnect: disconnect
+		};
+	}
+};
 
-export function connect(): void {
+function connect(): void {
 	const adaptor = window && window.solana;
 	if (adaptor) {
 		adaptor.on('connect', onConnect);
@@ -25,7 +37,7 @@ export function connect(): void {
 	}
 }
 
-export function disconnect(): void {
+function disconnect(): void {
 	const adaptor = window && window.solana;
 	adaptor.disconnect();
 }

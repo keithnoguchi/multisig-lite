@@ -1,13 +1,15 @@
-<script>
+<script lang="ts">
 	import FaGithub from 'svelte-icons/fa/FaGithub.svelte';
 	import FaGithubAlt from 'svelte-icons/fa/FaGithubAlt.svelte';
 	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
 	import { goto } from '$app/navigation';
-	import { connect, disconnect } from '$lib/wallet';
 	import Button from '$lib/Button.svelte';
 	import Account from '$lib/Account.svelte';
 	import { wallet } from '../stores/wallet';
 	import { cluster } from '../stores/cluster';
+	import type { LayoutData } from './$types';
+
+	export let data: LayoutData;
 
 	let githubSrc = 'https://github.com/keithnoguchi/multisig-lite/tree/main/app';
 	let solIconSrc =
@@ -41,7 +43,7 @@
 
 <footer>
 	{#if $wallet.address}
-		<Button on:click={() => disconnect()} let:isHovered size="large" shadow>
+		<Button on:click={() => data.disconnect()} let:isHovered size="large" shadow>
 			<div style:width="20px" slot="leftContent">
 				<img src="/phantom.svg" alt="phantom" style:width="20px" />
 			</div>
@@ -52,7 +54,7 @@
 			{/if}
 		</Button>
 	{:else}
-		<Button on:click={() => connect()} size="large" shadow>
+		<Button on:click={() => data.connect()} size="large" shadow>
 			<div style:width="20px" slot="leftContent">
 				<FaWallet />
 			</div>
