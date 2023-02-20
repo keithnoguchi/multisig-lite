@@ -12,10 +12,10 @@
 	let githubSrc = 'https://github.com/keithnoguchi/multisig-lite/tree/main/app';
 	let solIconSrc =
 		'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png';
-	$: explorer = `https://explorer.solana.com/?cluster=${$cluster}`;
+	$: explorer = `https://explorer.solana.com/?cluster=${$cluster.name}`;
 	$: explorerSrc = $wallet.address
-		? `https://explorer.solana.com/address/${$wallet.address}/?cluster=${$cluster}`
-		: `https://explorer.solana.com/?cluster=${$cluster}`;
+		? `https://explorer.solana.com/address/${$wallet.address}/?cluster=${$cluster.name}`
+		: `https://explorer.solana.com/?cluster=${$cluster.name}`;
 </script>
 
 <header>
@@ -49,7 +49,7 @@
 			{#if isHovered}
 				{$wallet.address}
 			{:else}
-				{$cluster}
+				{$cluster.name}
 			{/if}
 		</Button>
 	{:else}

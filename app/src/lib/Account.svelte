@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
+	import { PublicKey } from '@solana/web3.js';
 	import { cluster } from '../stores/cluster';
 
 	export let address = '';
@@ -9,9 +9,8 @@
 	export let maximumFractionDigits = 3;
 
 	async function getBalance(address: string): Promise<number> {
-		const endpoint = clusterApiUrl($cluster);
-		const connection = new Connection(endpoint);
-		return connection.getBalance(new PublicKey(address));
+		const publicKey = new PublicKey(address);
+		return $cluster.connection.getBalance(publicKey);
 	}
 </script>
 
