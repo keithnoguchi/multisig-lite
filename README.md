@@ -11,7 +11,7 @@ https://crates.io/crates/multisig-lite)
 [![Documentation](https://docs.rs/multisig-lite/badge.svg)](
 https://docs.rs/multisig-lite)
 
-[`sol`]: https://www.tradingview.com/chart/?symbol=SOL
+[`sol`]: https://www.tradingview.com/chart/?symbol=COINBASE%3ASOLUSD
 [multi signature wallet]: https://en.wikipedia.org/wiki/Cryptocurrency_wallet#Multisignature_wallet
 [dapp]: app/README.md
 [on-chain program]: programs/multisig-lite/README.md
