@@ -9,11 +9,13 @@
 
 import { get } from 'svelte/store';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
-import { AnchorProvider } from '@project-serum/anchor';
+import { AnchorProvider, Program } from '@project-serum/anchor';
 import { browser } from '$app/environment';
 import { wallet, Wallet } from '../stores/wallet';
 import { cluster } from '../stores/cluster';
 import { provider } from '../stores/provider';
+import { multisig } from '../stores/program';
+import multisigIdl from '../idl/multisig_lite.json';
 
 // https://kit.svelte.dev/docs/load#layout-data
 export const load = () => {
@@ -49,6 +51,9 @@ function onConnect() {
 		return;
 	}
 
+	// This cascadiung update should be handled by
+	// the reactive bindings.
+
 	// Setup the wallet.
 	const { publicKey, signTransaction, signAllTransactions } = adaptor;
 	const newWallet = new Wallet(publicKey);
@@ -61,9 +66,16 @@ function onConnect() {
 	const opts = { commitment: 'confirmed' };
 	const newProvider = new AnchorProvider(connection, newWallet, opts);
 	provider.set(newProvider);
+
+	// and the multisig program.
+	if (!multisigIdl.metadata || !provider) return undefined;
+	const programId = multisigIdl.metadata.address;
+	const newMultisig = new Program(multisigIdl, programId, newProvider);
+	multisig.set(newMultisig);
 }
 
 function onDisconnect() {
+	multisig.set(undefined);
 	provider.set(undefined);
 	wallet.set(new Wallet());
 }
