@@ -1,14 +1,13 @@
 <script>
-	import { goto } from '$app/navigation';
-	import { connect, disconnect } from '$lib/wallet';
-	import { cluster } from '../stores/cluster';
-	import { wallet } from '../stores/wallet';
-	import { provider } from '../stores/provider';
-	import Button from '$lib/Button.svelte';
-	import Account from '$lib/Account.svelte';
 	import FaGithub from 'svelte-icons/fa/FaGithub.svelte';
 	import FaGithubAlt from 'svelte-icons/fa/FaGithubAlt.svelte';
 	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
+	import { goto } from '$app/navigation';
+	import { connect, disconnect } from '$lib/wallet';
+	import Button from '$lib/Button.svelte';
+	import Account from '$lib/Account.svelte';
+	import { wallet } from '../stores/wallet';
+	import { cluster } from '../stores/cluster';
 
 	let githubSrc = 'https://github.com/keithnoguchi/multisig-lite/tree/main/app';
 	let solIconSrc =

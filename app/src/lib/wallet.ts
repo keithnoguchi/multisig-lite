@@ -8,11 +8,11 @@
 // [walletadapter]: https://solana-labs.github.io/wallet-adapter/
 
 import { get } from 'svelte/store';
-import { cluster } from '../stores/cluster';
-import { wallet, Wallet } from '../stores/wallet';
-import { provider } from '../stores/provider';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { AnchorProvider } from '@project-serum/anchor';
+import { wallet, Wallet } from '../stores/wallet';
+import { cluster } from '../stores/cluster';
+import { provider } from '../stores/provider';
 
 declare let window;
 
