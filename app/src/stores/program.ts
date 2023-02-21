@@ -29,55 +29,49 @@ class Multisig {
 	}
 
 	async statePda(): Promise<PublicKey | undefined> {
-		let program = get(this._program);
+		const program = get(this._program);
 		if (!program) return undefined;
 		if (this._statePda) return this._statePda;
-		const [pda, bump] = await PublicKey.findProgramAddress(
-			[utils.bytes.utf8.encode('state'), program.provider.publicKey.toBuffer()],
-			program.programId
-		);
+		const [pda, bump] = await this.findPda(program, 'state');
 		this._statePda = pda;
 		this._stateBump = bump;
 		return pda;
 	}
 
 	async stateBump(): Promise<number | undefined> {
-		let program = get(this._program);
+		const program = get(this._program);
 		if (!program) return undefined;
 		if (this._stateBump) return this._stateBump;
-		const [pda, bump] = await PublicKey.findProgramAddress(
-			[utils.bytes.utf8.encode('state'), program.provider.publicKey.toBuffer()],
-			program.programId
-		);
+		const [pda, bump] = await this.findPda(program, 'state');
 		this._statePda = pda;
 		this._stateBump = bump;
 		return bump;
 	}
 
 	async fundPda(): Promise<PublicKey | undefined> {
-		let program = get(this._program);
+		const program = get(this._program);
 		if (!program) return undefined;
-		if (this._fundPda) return this._fundPda;
-		const [pda, bump] = await PublicKey.findProgramAddress(
-			[utils.bytes.utf8.encode('fund'), program.provider.publicKey.toBuffer()],
-			program.programId
-		);
+		const [pda, bump] = await this.findPda(program, 'fund');
 		this._fundPda = pda;
 		this._fundBump = bump;
 		return pda;
 	}
 
 	async fundBump(): Promise<number | undefined> {
-		let program = get(this._program);
+		const program = get(this._program);
 		if (!program) return undefined;
 		if (this._stateBump) return this._stateBump;
-		const [pda, bump] = await PublicKey.findProgramAddress(
-			[utils.bytes.utf8.encode('fund'), program.provider.publicKey.toBuffer()],
-			program.programId
-		);
+		const [pda, bump] = await this.findPda(program, 'fund');
 		this._fundPda = pda;
 		this._fundBump = bump;
 		return bump;
+	}
+
+	async findPda(program: Program, name: string): Promise<[PublicKey, number]> {
+		return await PublicKey.findProgramAddress(
+			[utils.bytes.utf8.encode(name), program.provider.publicKey.toBuffer()],
+			program.programId
+		);
 	}
 }
 
