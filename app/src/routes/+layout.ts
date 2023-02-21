@@ -14,6 +14,7 @@ import { browser } from '$app/environment';
 import { wallet, Wallet } from '../stores/wallet';
 import { cluster } from '../stores/cluster';
 import { provider } from '../stores/provider';
+import { multisig } from '../stores/program';
 
 // https://kit.svelte.dev/docs/load#layout-data
 export const load = () => {
@@ -49,6 +50,9 @@ function onConnect() {
 		return;
 	}
 
+	// This cascadiung update should be handled by
+	// the reactive bindings.
+
 	// Setup the wallet.
 	const { publicKey, signTransaction, signAllTransactions } = adaptor;
 	const newWallet = new Wallet(publicKey);
@@ -61,9 +65,13 @@ function onConnect() {
 	const opts = { commitment: 'confirmed' };
 	const newProvider = new AnchorProvider(connection, newWallet, opts);
 	provider.set(newProvider);
+
+	// and the multisig program.
+	multisig.set(newProvider);
 }
 
 function onDisconnect() {
+	multisig.set(undefined);
 	provider.set(undefined);
 	wallet.set(new Wallet());
 }
