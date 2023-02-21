@@ -9,13 +9,12 @@
 
 import { get } from 'svelte/store';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
-import { AnchorProvider, Program } from '@project-serum/anchor';
+import { AnchorProvider } from '@project-serum/anchor';
 import { browser } from '$app/environment';
 import { wallet, Wallet } from '../stores/wallet';
 import { cluster } from '../stores/cluster';
 import { provider } from '../stores/provider';
 import { multisig } from '../stores/program';
-import multisigIdl from '../idl/multisig_lite.json';
 
 // https://kit.svelte.dev/docs/load#layout-data
 export const load = () => {
@@ -68,10 +67,7 @@ function onConnect() {
 	provider.set(newProvider);
 
 	// and the multisig program.
-	if (!multisigIdl.metadata || !provider) return undefined;
-	const programId = multisigIdl.metadata.address;
-	const newMultisig = new Program(multisigIdl, programId, newProvider);
-	multisig.set(newMultisig);
+	multisig.set(newProvider);
 }
 
 function onDisconnect() {

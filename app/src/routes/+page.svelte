@@ -1,9 +1,5 @@
 <script>
-	import { multisig } from '../stores/program';
+	import Multisig from '$lib/Multisig.svelte';
 </script>
 
-<h1>multisig-lite</h1>
-
-{#if $multisig}
-	<p>ProgramID: {$multisig.programId}</p>
-{/if}
+<Multisig />
