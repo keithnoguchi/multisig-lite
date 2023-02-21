@@ -7,7 +7,6 @@ import multisigIdl from '../idl/multisig_lite.json';
 class Multisig {
 	constructor() {
 		this._program = writable(undefined);
-		this._statePda = undefined;
 	}
 
 	subscribe(run) {
@@ -18,10 +17,6 @@ class Multisig {
 		const idl = multisigIdl;
 		if (!provider || !idl.metadata || !idl.metadata.address) {
 			this._program.set(undefined);
-			this._statePda = undefined;
-			this._stateBump = undefined;
-			this._fundPda = undefined;
-			this._fundBump = undefined;
 			return;
 		}
 		const programId = idl.metadata.address;
