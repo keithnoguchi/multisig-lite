@@ -1,5 +1,23 @@
 <script>
+	import { page } from '$app/stores';
+	import { multisig } from '../stores/program';
+	import Button from '$lib/Button.svelte';
 	import Multisig from '$lib/Multisig.svelte';
 </script>
 
-<Multisig />
+{#if !$multisig}
+	<h1 class="main">Welcome!</h1>
+
+	<div class="main">
+		<Button on:click={() => $page.data.connect()} shadow>Connect to the wallet</Button>
+	</div>
+{:else}
+	<Multisig />
+{/if}
+
+<style>
+	.main {
+		display: flex;
+		justify-content: center;
+	}
+</style>
