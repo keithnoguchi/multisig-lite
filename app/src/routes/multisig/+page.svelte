@@ -1,21 +1,16 @@
 <script>
+	import { multisig } from '$lib/stores/program';
+
 	import Button from '$lib/Button.svelte';
-	import { multisig } from '../../stores/program';
 </script>
 
-<h1>Your Multisig Wallet Info</h1>
+<h2>Multisig Account</h2>
 
 <ul>
-	{#await multisig.statePda()}
-		...
-	{:then pda}
-		<li>Multisig address: {pda.toString()}</li>
-	{/await}
-	{#await multisig.fundPda()}
-		...
-	{:then pda}
-		<li>Fund address: {pda.toString()}</li>
-	{/await}
+	<li>State PDA: {multisig.statePda}</li>
+	<li>State bump: {multisig.stateBump}</li>
+	<li>Fund PDA: {multisig.fundPda}</li>
+	<li>Fund bump: {multisig.fundBump}</li>
 </ul>
 
 <Button>Open an account</Button>

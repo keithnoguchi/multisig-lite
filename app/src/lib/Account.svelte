@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { provider } from '$lib/stores/provider';
 	import { PublicKey } from '@solana/web3.js';
-	import { provider } from '../stores/provider';
 
 	export let address = '';
 	export let prefix = '';

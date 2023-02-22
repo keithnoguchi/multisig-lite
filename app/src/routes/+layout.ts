@@ -8,13 +8,13 @@
 // [walletadapter]: https://solana-labs.github.io/wallet-adapter/
 
 import { get } from 'svelte/store';
+import { browser } from '$app/environment';
+import { wallet, Wallet } from '$lib/stores/wallet';
+import { cluster } from '$lib/stores/cluster';
+import { provider } from '$lib/stores/provider';
+import { multisig } from '$lib/stores/program';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { AnchorProvider } from '@project-serum/anchor';
-import { browser } from '$app/environment';
-import { wallet, Wallet } from '../stores/wallet';
-import { cluster } from '../stores/cluster';
-import { provider } from '../stores/provider';
-import { multisig } from '../stores/program';
 
 // https://kit.svelte.dev/docs/load#layout-data
 export const load = () => {
@@ -43,7 +43,7 @@ function disconnect(): void {
 	adaptor.disconnect();
 }
 
-function onConnect() {
+async function onConnect() {
 	const adaptor = window && window.solana;
 	if (!adaptor) {
 		wallet.set(new Wallet());
@@ -67,7 +67,7 @@ function onConnect() {
 	provider.set(newProvider);
 
 	// and the multisig program.
-	multisig.set(newProvider);
+	await multisig.set(newProvider);
 }
 
 function onDisconnect() {
