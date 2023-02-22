@@ -16,7 +16,7 @@
 
 	// Move back to the top page in case no multisig
 	// program is detected.
-	$: if (browser && !$multisig && $page.route.id != '/') {
+	$: if (browser && !$multisig && $page.url.pathname != '/') {
 		goto('/');
 	}
 

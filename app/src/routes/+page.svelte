@@ -1,17 +1,20 @@
 <script>
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 	import { multisig } from '../stores/program';
 	import Button from '$lib/Button.svelte';
-</script>
 
-{#if $multisig}
-	{goto('/multisig')}
-{/if}
+	// Move to the multisig page once multisig program
+	// is detected.
+	$: if (browser && $multisig) {
+		goto('/multisig');
+	}
+</script>
 
 <h1 class="center">Welcome!</h1>
 <div class="center">
-	<Button on:click={() => $page.data.connect()} shadow>Connect with your wallet</Button>
+	<Button on:click={() => $page.data.connect()} shadow>Connect to your wallet</Button>
 </div>
 
 <style>
