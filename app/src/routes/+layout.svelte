@@ -1,15 +1,24 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 	import FaGithub from 'svelte-icons/fa/FaGithub.svelte';
 	import FaGithubAlt from 'svelte-icons/fa/FaGithubAlt.svelte';
 	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
-	import { goto } from '$app/navigation';
 	import Button from '$lib/Button.svelte';
 	import Account from '$lib/Account.svelte';
 	import { wallet } from '../stores/wallet';
 	import { cluster } from '../stores/cluster';
+	import { multisig } from '../stores/program';
 	import type { LayoutData } from './$types';
 
 	export let data: LayoutData;
+
+	// Move back to the top page in case no multisig
+	// program is detected.
+	$: if (browser && !$multisig && $page.route.id != '/') {
+		goto('/');
+	}
 
 	let githubSrc = 'https://github.com/keithnoguchi/multisig-lite/tree/main/app';
 	let solIconSrc =

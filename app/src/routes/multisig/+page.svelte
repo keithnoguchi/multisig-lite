@@ -1,6 +1,6 @@
 <script>
 	import Button from '$lib/Button.svelte';
-	import { multisig } from '../stores/program';
+	import { multisig } from '../../stores/program';
 </script>
 
 <h1>Your Multisig Wallet Info</h1>
