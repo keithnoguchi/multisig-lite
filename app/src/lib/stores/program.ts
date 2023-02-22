@@ -1,8 +1,8 @@
+import { writable } from 'svelte/store';
+import multisigIdl from '$lib/idl/multisig_lite.json';
 import { PublicKey } from '@solana/web3.js';
 import { utils, Program } from '@project-serum/anchor';
 import type { Provider } from '@project-serum/anchor';
-import { writable } from 'svelte/store';
-import multisigIdl from '../idl/multisig_lite.json';
 
 class Multisig {
 	constructor() {

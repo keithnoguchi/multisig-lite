@@ -2,15 +2,16 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { wallet } from '$lib/stores/wallet';
+	import { cluster } from '$lib/stores/cluster';
+	import { multisig } from '$lib/stores/program';
+	import type { LayoutData } from './$types';
+
+	import Button from '$lib/Button.svelte';
+	import Account from '$lib/Account.svelte';
 	import FaGithub from 'svelte-icons/fa/FaGithub.svelte';
 	import FaGithubAlt from 'svelte-icons/fa/FaGithubAlt.svelte';
 	import FaWallet from 'svelte-icons/fa/FaWallet.svelte';
-	import Button from '$lib/Button.svelte';
-	import Account from '$lib/Account.svelte';
-	import { wallet } from '../stores/wallet';
-	import { cluster } from '../stores/cluster';
-	import { multisig } from '../stores/program';
-	import type { LayoutData } from './$types';
 
 	export let data: LayoutData;
 

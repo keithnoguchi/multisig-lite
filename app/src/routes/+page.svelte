@@ -2,7 +2,8 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
-	import { multisig } from '../stores/program';
+	import { multisig } from '$lib/stores/program';
+
 	import Button from '$lib/Button.svelte';
 
 	// Move to the multisig page once multisig program
