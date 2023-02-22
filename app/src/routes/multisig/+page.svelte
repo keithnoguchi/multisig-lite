@@ -1,16 +1,13 @@
 <script>
-	import { multisig } from '$lib/stores/program';
+	import MultisigAccounts from './MultisigAccounts.svelte';
 
-	import Button from '$lib/Button.svelte';
+	let accounts = [];
+	function add(e) {
+		accounts = [...accounts, e.detail.address];
+	}
+	function remove(e) {
+		accounts = accounts.filter((a) => a !== e.detail.address);
+	}
 </script>
 
-<h2>Multisig Account</h2>
-
-<ul>
-	<li>State PDA: {multisig.statePda}</li>
-	<li>State bump: {multisig.stateBump}</li>
-	<li>Fund PDA: {multisig.fundPda}</li>
-	<li>Fund bump: {multisig.fundBump}</li>
-</ul>
-
-<Button>Open an account</Button>
+<MultisigAccounts {accounts} on:add={add} on:remove={remove} />
