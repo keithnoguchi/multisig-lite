@@ -1,6 +1,7 @@
 <svelte:options immutable={true} />
 
 <script>
+	import { goto } from '$app/navigation';
 	import { PublicKey } from '@solana/web3.js';
 	import { createEventDispatcher } from 'svelte';
 	import { multisig } from '$lib/stores/program';
@@ -37,7 +38,9 @@
 	}
 
 	function edit(address) {
-		if (!accounts.includes(address)) {
+		if (accounts.includes(address)) {
+			goto(`/multisig/${address}`);
+		} else {
 			dispatch('add', { address }, { cancelable: true });
 		}
 	}
@@ -70,11 +73,11 @@
 		{/each}
 	</table>
 {:else}
-	<p>Please input the multisig account.</p>
+	<p>Please enter a multisig account address.</p>
 {/if}
 
 <form on:submit|preventDefault={open}>
-	<input placeholder="Multisig account number, e.g 76ne...7qb5" bind:value={address} />
+	<input placeholder="Multisig account address, e.g 76ne...7qb5" bind:value={address} />
 </form>
 
 <footer>
@@ -85,7 +88,7 @@
 			on:keypress={() => edit(multisig.statePda)}>{multisig.statePda}</small
 		>
 		<br />
-		is your multisig account number.
+		is your multisig account address.
 	</p>
 </footer>
 
