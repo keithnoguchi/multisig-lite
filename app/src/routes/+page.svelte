@@ -13,13 +13,19 @@
 	}
 </script>
 
-<h1 class="center">Welcome!</h1>
-<div class="center">
-	<Button on:click={() => $page.data.connect()} shadow>Connect to your wallet</Button>
-</div>
+<header>
+	<h1>Welcome!</h1>
+</header>
 
-<style>
-	.center {
+<article>
+	<Button on:click={() => $page.data.connect()} shadow>Connect to your wallet</Button>
+</article>
+
+<style lang="scss">
+	header {
+		text-align: center;
+	}
+	article {
 		display: flex;
 		justify-content: center;
 	}
