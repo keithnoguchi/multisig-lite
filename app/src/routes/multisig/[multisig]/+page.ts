@@ -2,6 +2,6 @@ import type { PageLoad } from './$types';
 
 export const load = (({ params }) => {
 	return {
-		address: params.slug
+		address: params.multisig
 	};
 }) satisfies PageLoad;
