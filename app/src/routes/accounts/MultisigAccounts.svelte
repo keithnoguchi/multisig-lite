@@ -39,7 +39,7 @@
 
 	function edit(address) {
 		if (accounts.includes(address)) {
-			goto(`/multisig/${address}`);
+			goto(`/accounts/${address}`);
 		} else {
 			dispatch('add', { address }, { cancelable: true });
 		}
