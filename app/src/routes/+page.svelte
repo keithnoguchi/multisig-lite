@@ -6,10 +6,9 @@
 
 	import Button from '$lib/Button.svelte';
 
-	// Move to the multisig page once multisig program
-	// is detected.
+	// Move to the accounts page once multisig program is detected.
 	$: if (browser && $multisig) {
-		goto('/multisig');
+		goto('/accounts');
 	}
 </script>
 

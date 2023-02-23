@@ -39,7 +39,7 @@
 
 	function edit(address) {
 		if (accounts.includes(address)) {
-			goto(`/multisig/${address}`);
+			goto(`/accounts/${address}`);
 		} else {
 			dispatch('add', { address }, { cancelable: true });
 		}
@@ -72,12 +72,10 @@
 			</tr>
 		{/each}
 	</table>
-{:else}
-	<p>Please enter a multisig account address.</p>
 {/if}
 
 <form on:submit|preventDefault={open}>
-	<input placeholder="Multisig account address, e.g 76ne...7qb5" bind:value={address} />
+	<input placeholder="Enter multisig account address, e.g 76ne...7qb5" bind:value={address} />
 </form>
 
 <footer>
@@ -113,10 +111,6 @@
 				cursor: pointer;
 			}
 		}
-	}
-
-	p {
-		text-align: center;
 	}
 
 	form {
