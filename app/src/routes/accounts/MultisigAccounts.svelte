@@ -75,7 +75,7 @@
 {/if}
 
 <form on:submit|preventDefault={open}>
-	<input placeholder="Enter multisig account address, e.g 76ne...7qb5" bind:value={address} />
+	<input placeholder="Enter a multisig account address, e.g 76ne...7qb5" bind:value={address} />
 </form>
 
 <footer>
