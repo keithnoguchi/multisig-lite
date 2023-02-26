@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import multisigIdl from '$lib/idl/multisig_lite.json';
 import { PublicKey } from '@solana/web3.js';
 import { utils, Program } from '@project-serum/anchor';
@@ -21,8 +21,12 @@ class Multisig {
 		}
 		const programId = idl.metadata.address;
 		const program = new Program(idl, programId, provider);
-		const [statePda, stateBump] = await this.findPda(program, 'state');
-		const [fundPda, fundBump] = await this.findPda(program, 'fund');
+		const [statePda, stateBump] = await this.findPda(
+			program.programId,
+			'state',
+			program.provider.publicKey
+		);
+		const [fundPda, fundBump] = await this.findPda(program.programId, 'fund', statePda);
 		this.statePda = statePda;
 		this.stateBump = stateBump;
 		this.fundPda = fundPda;
@@ -30,10 +34,33 @@ class Multisig {
 		this._program.set(program);
 	}
 
-	async findPda(program: Program, name: string): Promise<[PublicKey, number]> {
+	get program() {
+		return get(this._program);
+	}
+
+	async close(account: PublicKey) {
+		try {
+			await this.program.methods
+				.close(this.stateBump, multisig.fundBump)
+				.accounts({
+					funder: this.program.provider.publicKey,
+					state: this.statePda,
+					fund: this.fundPda
+				})
+				.rpc();
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	async findPda(
+		programId: PublicKey,
+		name: string,
+		publicKey: PublicKey
+	): Promise<[PublicKey, number]> {
 		return await PublicKey.findProgramAddress(
-			[utils.bytes.utf8.encode(name), program.provider.publicKey.toBuffer()],
-			program.programId
+			[utils.bytes.utf8.encode(name), publicKey.toBuffer()],
+			programId
 		);
 	}
 }
