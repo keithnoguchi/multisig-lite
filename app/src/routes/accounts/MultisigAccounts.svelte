@@ -1,7 +1,6 @@
 <svelte:options immutable={true} />
 
 <script>
-	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import { PublicKey } from '@solana/web3.js';
 	import { createEventDispatcher } from 'svelte';
