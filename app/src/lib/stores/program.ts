@@ -38,6 +38,21 @@ class Multisig {
 		return get(this._program);
 	}
 
+	async close(account: PublicKey) {
+		try {
+			await this.program.methods
+				.close(this.stateBump, multisig.fundBump)
+				.accounts({
+					funder: this.program.provider.publicKey,
+					state: this.statePda,
+					fund: this.fundPda
+				})
+				.rpc();
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
 	async findPda(
 		programId: PublicKey,
 		name: string,

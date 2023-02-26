@@ -57,15 +57,7 @@
 	}
 
 	async function close(address) {
-		const sig = await multisig.program.methods
-			.close(multisig.stateBump, multisig.fundBump)
-			.accounts({
-				funder: multisig.program.provider.publicKey,
-				state: multisig.statePda,
-				fund: multisig.fundPda
-			})
-			.rpc();
-		console.log(sig);
+		await multisig.close(address);
 		dispatch('remove', { address });
 	}
 </script>
