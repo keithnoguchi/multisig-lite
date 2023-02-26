@@ -21,7 +21,11 @@ class Multisig {
 		}
 		const programId = idl.metadata.address;
 		const program = new Program(idl, programId, provider);
-		const [statePda, stateBump] = await this.findPda(program.programId, 'state', program.provider.publicKey);
+		const [statePda, stateBump] = await this.findPda(
+			program.programId,
+			'state',
+			program.provider.publicKey
+		);
 		const [fundPda, fundBump] = await this.findPda(program.programId, 'fund', statePda);
 		this.statePda = statePda;
 		this.stateBump = stateBump;
@@ -34,7 +38,11 @@ class Multisig {
 		return get(this._program);
 	}
 
-	async findPda(programId: PublicKey, name: string, publicKey: PublicKey): Promise<[PublicKey, number]> {
+	async findPda(
+		programId: PublicKey,
+		name: string,
+		publicKey: PublicKey
+	): Promise<[PublicKey, number]> {
 		return await PublicKey.findProgramAddress(
 			[utils.bytes.utf8.encode(name), publicKey.toBuffer()],
 			programId

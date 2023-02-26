@@ -43,8 +43,6 @@
 		if (accounts.includes(address)) {
 			goto(`/accounts/${address}`);
 		} else {
-			console.log(multisig.statePda.toString());
-			console.log(multisig.fundPda.toString());
 			const sig = await multisig.program.methods
 				.create(1, [multisig.program.provider.publicKey], 10, multisig.stateBump, multisig.fundBump)
 				.accounts({
@@ -59,7 +57,16 @@
 		}
 	}
 
-	function close(address) {
+	async function close(address) {
+		const sig = await multisig.program.methods
+			.close(multisig.stateBump, multisig.fundBump)
+			.accounts({
+				funder: multisig.program.provider.publicKey,
+				state: multisig.statePda,
+				fund: multisig.fundPda
+			})
+			.rpc();
+		console.log(sig);
 		dispatch('remove', { address });
 	}
 </script>
