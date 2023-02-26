@@ -1,6 +1,7 @@
 <svelte:options immutable={true} />
 
 <script>
+	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import { PublicKey } from '@solana/web3.js';
 	import { createEventDispatcher } from 'svelte';
@@ -15,7 +16,7 @@
 	const dispatch = createEventDispatcher();
 
 	let address = '';
-	function open() {
+	async function open() {
 		let pubkey;
 		try {
 			pubkey = new PublicKey(address);
@@ -31,16 +32,29 @@
 				return;
 			}
 		}
+
 		const isNotCancelled = dispatch('add', { address: pubkey }, { cancelable: true });
 		if (isNotCancelled) {
 			address = '';
 		}
 	}
 
-	function edit(address) {
+	async function edit(address) {
 		if (accounts.includes(address)) {
 			goto(`/accounts/${address}`);
 		} else {
+			console.log(multisig.statePda.toString());
+			console.log(multisig.fundPda.toString());
+			const sig = await multisig.program.methods
+				.create(1, [multisig.program.provider.publicKey], 10, multisig.stateBump, multisig.fundBump)
+				.accounts({
+					funder: multisig.program.provider.publicKey,
+					state: multisig.statePda,
+					fund: multisig.fundPda
+				})
+				.signers([])
+				.rpc();
+			console.log('create', sig);
 			dispatch('add', { address }, { cancelable: true });
 		}
 	}

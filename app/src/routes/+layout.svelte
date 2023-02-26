@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
@@ -27,7 +28,21 @@
 	$: explorer = $wallet.address
 		? `https://explorer.solana.com/address/${$wallet.address}/?cluster=${$cluster}`
 		: `https://explorer.solana.com/?cluster=${$cluster}`;
+
+	// https://github.com/DougAnderson444/solblog/blob/master/app/src/routes/__layout.svelte
+	onMount(async () => {
+		import('buffer').then((Buffer) => {
+			global.Buffer = Buffer.Buffer;
+		});
+	});
 </script>
+
+<svelte:head>
+	<script>
+		// https://github.com/DougAnderson444/solblog/blob/master/app/src/routes/__layout.svelte
+		global = globalThis;
+	</script>
+</svelte:head>
 
 <header>
 	<Button class="header-left" on:click={() => goto(githubSrc)} let:isHovered size="small">
