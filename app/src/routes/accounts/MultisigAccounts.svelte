@@ -1,6 +1,6 @@
 <svelte:options immutable={true} />
 
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import { PublicKey } from '@solana/web3.js';
 	import { createEventDispatcher } from 'svelte';
@@ -32,32 +32,36 @@
 			}
 		}
 
+		try {
+			await multisig.open(multisig.statePda);
+		} catch (e) {
+			console.error(e);
+		}
 		const isNotCancelled = dispatch('add', { address: pubkey }, { cancelable: true });
 		if (isNotCancelled) {
 			address = '';
 		}
 	}
 
-	async function edit(address) {
+	async function edit(address: PublicKey) {
 		if (accounts.includes(address)) {
 			goto(`/accounts/${address}`);
 		} else {
-			const sig = await multisig.program.methods
-				.create(1, [multisig.program.provider.publicKey], 10, multisig.stateBump, multisig.fundBump)
-				.accounts({
-					funder: multisig.program.provider.publicKey,
-					state: multisig.statePda,
-					fund: multisig.fundPda
-				})
-				.signers([])
-				.rpc();
-			console.log('create', sig);
+			try {
+				await multisig.open(address);
+			} catch (e) {
+				console.error(e);
+			}
 			dispatch('add', { address }, { cancelable: true });
 		}
 	}
 
-	async function close(address) {
-		await multisig.close(address);
+	async function close(address: PublicKey) {
+		try {
+			await multisig.close(address);
+		} catch (e) {
+			console.error(e);
+		}
 		dispatch('remove', { address });
 	}
 </script>

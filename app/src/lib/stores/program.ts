@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store';
-import multisigIdl from '$lib/idl/multisig_lite.json';
 import { PublicKey } from '@solana/web3.js';
 import { utils, Program } from '@project-serum/anchor';
+import multisigIdl from '$lib/idl/multisig_lite.json';
 import type { Provider } from '@project-serum/anchor';
 
 class Multisig {
@@ -38,19 +38,35 @@ class Multisig {
 		return get(this._program);
 	}
 
-	async close(account: PublicKey) {
-		try {
-			await this.program.methods
-				.close(this.stateBump, multisig.fundBump)
-				.accounts({
-					funder: this.program.provider.publicKey,
-					state: this.statePda,
-					fund: this.fundPda
-				})
-				.rpc();
-		} catch (e) {
-			console.error(e);
-		}
+	get programId(): PublicKey | undefined {
+		return this.program?.programId;
+	}
+
+	get publicKey(): PublicKey | undefined {
+		return this.program?.provider.publicKey;
+	}
+
+	async open(address: PublicKey) {
+		// Start with the fixed value, as PoC.
+		await this.program.methods
+			.create(1, [this.publicKey], 10, this.stateBump, this.fundBump)
+			.accounts({
+				funder: this.publicKey,
+				state: this.statePda,
+				fund: this.fundPda
+			})
+			.rpc();
+	}
+
+	async close(address: PublicKey) {
+		await this.program.methods
+			.close(this.stateBump, multisig.fundBump)
+			.accounts({
+				funder: this.publicKey,
+				state: this.statePda,
+				fund: this.fundPda
+			})
+			.rpc();
 	}
 
 	async findPda(
