@@ -1,7 +1,9 @@
 <script>
 	import MultisigAccounts from './MultisigAccounts.svelte';
 
-	let accounts = [];
+	export let data;
+
+	let accounts = data.address ? [data.address] : [];
 	function add(e) {
 		accounts = [...accounts, e.detail.address];
 	}
