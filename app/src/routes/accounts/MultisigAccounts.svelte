@@ -34,12 +34,12 @@
 
 		try {
 			await multisig.open(multisig.statePda);
+			const isNotCancelled = dispatch('add', { address: pubkey }, { cancelable: true });
+			if (isNotCancelled) {
+				address = '';
+			}
 		} catch (e) {
 			console.error(e);
-		}
-		const isNotCancelled = dispatch('add', { address: pubkey }, { cancelable: true });
-		if (isNotCancelled) {
-			address = '';
 		}
 	}
 
@@ -49,20 +49,20 @@
 		} else {
 			try {
 				await multisig.open(address);
+				dispatch('add', { address }, { cancelable: true });
 			} catch (e) {
 				console.error(e);
 			}
-			dispatch('add', { address }, { cancelable: true });
 		}
 	}
 
 	async function close(address: PublicKey) {
 		try {
 			await multisig.close(address);
+			dispatch('remove', { address });
 		} catch (e) {
 			console.error(e);
 		}
-		dispatch('remove', { address });
 	}
 </script>
 

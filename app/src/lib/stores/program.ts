@@ -47,26 +47,36 @@ class Multisig {
 	}
 
 	async open(address: PublicKey) {
-		// Start with the fixed value, as PoC.
-		await this.program.methods
-			.create(1, [this.publicKey], 10, this.stateBump, this.fundBump)
-			.accounts({
-				funder: this.publicKey,
-				state: this.statePda,
-				fund: this.fundPda
-			})
-			.rpc();
+		if (address.equals(this.statePda)) {
+			// Hard coded values for now.
+			const m = 1;
+			const signers = [PublicKey.unique(), this.publicKey];
+			const maxQueue = 10;
+			await this.program.methods
+				.create(m, signers, maxQueue, this.stateBump, this.fundBump)
+				.accounts({
+					funder: this.publicKey,
+					state: this.statePda,
+					fund: this.fundPda
+				})
+				.rpc();
+		} else {
+			// Only check if the account actually exists.
+			await this.program.account.state.fetch(address);
+		}
 	}
 
 	async close(address: PublicKey) {
-		await this.program.methods
-			.close(this.stateBump, multisig.fundBump)
-			.accounts({
-				funder: this.publicKey,
-				state: this.statePda,
-				fund: this.fundPda
-			})
-			.rpc();
+		if (address.equals(this.statePda)) {
+			await this.program.methods
+				.close(this.stateBump, multisig.fundBump)
+				.accounts({
+					funder: this.publicKey,
+					state: this.statePda,
+					fund: this.fundPda
+				})
+				.rpc();
+		}
 	}
 
 	async findPda(
